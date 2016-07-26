@@ -1,4 +1,4 @@
-# [Solo](https://github.com/b3log/solo) [![Build Status](https://img.shields.io/travis/b3log/solo.svg?style=flat)](https://travis-ci.org/b3log/solo) [![Coverage Status](https://img.shields.io/coveralls/b3log/b3log-solo.svg?style=flat)](https://coveralls.io/r/b3log/b3log-solo)  [![Apache License](http://img.shields.io/badge/license-apache2-orange.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](http://img.shields.io/badge/download-~5K-blue.svg?style=flat)](http://pan.baidu.com/share/link?shareid=541735&uk=3255126224)
+# [Solo](https://github.com/b3log/solo) [![Build Status](https://img.shields.io/travis/b3log/solo.svg?style=flat)](https://travis-ci.org/b3log/solo) [![Coverage Status](https://img.shields.io/coveralls/b3log/solo.svg?style=flat)](https://coveralls.io/github/b3log/solo?branch=master)  [![Apache License](http://img.shields.io/badge/license-apache2-orange.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Download](http://img.shields.io/badge/download-~6.2K-blue.svg?style=flat)](http://pan.baidu.com/share/link?shareid=541735&uk=3255126224)
 
 <img src="https://cloud.githubusercontent.com/assets/873584/6817919/72ffdb5c-d2e2-11e4-8be8-37ac1b08ff81.jpg"  width="96%" />
 
@@ -9,6 +9,12 @@
 [Solo](https://github.com/b3log/solo) 是一个专业、简约、稳定、极速的开源 Java 博客系统。你可以自己搭建使用（[下载](http://pan.baidu.com/share/link?shareid=541735&uk=3255126224)），也可以通过购买我们搭建好的服务来直接使用，详情请看[这里](http://b3log.org/services/#solo)。
 
 > 加入[**黑客派**](https://hacpai.com/register)，与其他程序员、设计师共同成长！
+
+## Authors
+
+[Daniel](https://github.com/88250) and [Vanessa](https://github.com/Vanessa219) are the main authors of Solo, [here](https://github.com/b3log/solo/graphs/contributors) are all contributors.
+
+Solo 的主要作者是 [Daniel](https://github.com/88250) 与 [Vanessa](https://github.com/Vanessa219)，所有贡献者可以在[这里](https://github.com/b3log/solo/graphs/contributors)看到。
 
 ## Features 
 
@@ -69,4 +75,4 @@ See [here](http://solo.b3log.org/CHANGE_LOGS.html).
 ## Credits
 
 * [Latke](https://github.com/b3log/latke)
-* [IntelliJ IDEA](http://www.jetbrains.com/idea/index.html)
+* [NetBeans](https://netbeans.org)
