@@ -29,7 +29,7 @@
                         </h1>
                         <div class="post-meta">
                             <span class="post-time">
-                                发表于
+                                ${postTimeLabel}
                                 <time>
                                     ${article.articleCreateDate?string("yyyy-MM-dd")}
                                 </time>
@@ -37,14 +37,14 @@
                             <span class="post-comments-count">
                                 &nbsp; | &nbsp;
                                 <a href="${servePath}${article.articlePermalink}#comments">
-                                    ${article.articleCommentCount}条评论</a>
+                                    ${article.articleCommentCount} ${cmtLabel}</a>
                             </span>
-                            &nbsp; | &nbsp;热度
+                            &nbsp; | &nbsp; ${viewsLabel}
                             ${article.articleViewCount}°C
                         </div>
                     </header>
 
-                    <div class="post-body">
+                    <div class="post-body article-body">
                         ${article.articleContent}
                         <#if "" != article.articleSign.signHTML?trim>
                         <div>
@@ -61,16 +61,16 @@
                         </div>
                         <div class="post-nav fn-clear">
                             <#if previousArticlePermalink??>
-                            <div class="post-nav-prev post-nav-item fn-left">
+                            <div class="post-nav-prev post-nav-item fn-right">
                                 <a href="${servePath}${previousArticlePermalink}" rel="next" title="${previousArticleTitle}">
-                                    < ${previousArticleTitle}
+                                    ${previousArticleTitle} >
                                 </a>
                             </div>
                             </#if>
                             <#if nextArticlePermalink??>
-                            <div class="post-nav-next post-nav-item fn-right">
+                            <div class="post-nav-next post-nav-item fn-left">
                                 <a href="${servePath}${nextArticlePermalink}" rel="prev" title="${nextArticleTitle}">
-                                    ${nextArticleTitle} >
+                                   < ${nextArticleTitle} 
                                 </a>
                             </div>
                             </#if>
@@ -78,13 +78,16 @@
                     </footer>
                 </article>
             </div>
-
             <@comments commentList=articleComments article=article></@comments>
+            <div id="externalRelevantArticles"></div>
             <#include "side.ftl">
         </main>
         <#include "footer.ftl">
         <@comment_script oId=article.oId>
         page.tips.externalRelevantArticlesDisplayCount = "${externalRelevantArticlesDisplayCount}";
+        <#if 0 != externalRelevantArticlesDisplayCount>
+        page.loadExternalRelevantArticles("<#list article.articleTags?split(",") as articleTag>${articleTag}<#if articleTag_has_next>,</#if></#list>");
+        </#if>
         </@comment_script>    
     </body>
 </html>

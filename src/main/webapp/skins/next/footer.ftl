@@ -1,11 +1,13 @@
 <footer class="footer">
-    <div class="wrapper">
+    <div class="wrapper fn-clear">
         <a href="${servePath}">${blogTitle}</a>  •
         ${onlineVisitor1Label}${onlineVisitorCnt} <br/>
         &copy; ${year}
         ${footerContent}
         Powered by <a href="http://b3log.org" target="_blank">B3log 开源</a> •
         <a href="http://b3log.org/services/#solo" target="_blank">Solo</a> ${version}
+        
+        <div class="fn-right">Theme by <a href="http://iissnan.com/" target="_blank">IIssNan</a> & <a href="http://vanessa.b3log.org" target="_blank">Vanessa</a>.</div>
     </div>
 </footer>
 <div class="back-to-top" onclick="Util.goTop()"></div>
@@ -37,7 +39,9 @@
         "em11Label": "${em11Label}",
         "em12Label": "${em12Label}",
         "em13Label": "${em13Label}",
-        "em14Label": "${em14Label}"
+        "em14Label": "${em14Label}",
+        "tocLabel": "${tocLabel}",
+        "siteViewLabel": "${siteViewLabel}"
     };
 </script>
 ${plugins}
