@@ -68,7 +68,8 @@ import org.jsoup.Jsoup;
  * Article processor.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.4.2.15, Nov 20, 2015
+ * @author <a href="http://zephyr.b3log.org">Zephyr</a>
+ * @version 1.4.2.16, Nov 17, 2016
  * @since 0.3.1
  */
 @RequestProcessor

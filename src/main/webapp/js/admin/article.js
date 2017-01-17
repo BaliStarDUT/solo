@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.3.4.4, Jan 27, 2016
+ * @version 1.3.5.7, Nov 16, 2016
  */
 admin.article = {
     currentEditorType: '',
@@ -415,7 +415,7 @@ admin.article = {
                     height: 160,
                     buttonText: Label.selectLabel,
                     data: tags
-                });
+                }).width($("#tag").parent().width() - 68);
 
                 $("#loadMsg").text("");
             }
@@ -444,11 +444,13 @@ admin.article = {
         var filename = "";
         $('#articleUpload').fileupload({
             multipart: true,
-            url: "http://upload.qiniu.com/",
+            url: "https://up.qbox.me",
             add: function (e, data) {
                 filename = data.files[0].name;
 
                 data.submit();
+
+                $('#articleUpload span').text('uploading...');
             },
             formData: function (form) {
                 var data = form.serializeArray();
@@ -460,18 +462,19 @@ admin.article = {
                 return data;
             },
             done: function (e, data) {
+                $('#articleUpload span').text('');
                 var qiniuKey = data.result.key;
                 if (!qiniuKey) {
-                    alert("Upload error");
+                    alert("Upload error, please check Qiniu configurations");
 
                     return;
                 }
 
-                $('#articleUpload').after('<div id="uploadContent">!<a target="_blank" href="http://' + qiniu.qiniuDomain + qiniuKey + '">[' + filename + ']</a>(http://'
+                $('#articleUpload').after('<div>![' + data.files[0].name + '](http://'
                         + qiniu.qiniuDomain + qiniuKey + ')</div>');
             },
             fail: function (e, data) {
-                alert("Upload error: " + data.errorThrown);
+                $('#articleUpload span').text("Upload error, please check Qiniu configurations [" + data.errorThrown + "]");
             }
         }).on('fileuploadprocessalways', function (e, data) {
             var currentFile = data.files[data.index];
@@ -481,14 +484,14 @@ admin.article = {
         });
 
         // editor
-        admin.editors.articleEditor = new Editor({
+        admin.editors.articleEditor = new SoloEditor({
             id: "articleContent",
             kind: "all",
             fun: fun,
             height: 500
         });
 
-        admin.editors.abstractEditor = new Editor({
+        admin.editors.abstractEditor = new SoloEditor({
             id: "abstract",
             kind: "simple",
             height: 200

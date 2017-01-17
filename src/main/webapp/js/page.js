@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.2.3.5, Nov 2, 2015
+ * @version 1.2.3.6, Nov 8, 2016
  */
 var Page = function (tips) {
     this.currentCommentId = "";
@@ -368,12 +368,12 @@ $.extend(Page.prototype, {
         // otherelse use highlight
         // load css
         if (document.createStyleSheet) {
-            document.createStyleSheet(latkeConfig.staticServePath + "/js/lib/highlight/styles/default.css");
+            document.createStyleSheet(latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/styles/default.css");
         } else {
-            $("head").append($("<link rel='stylesheet' href='" + latkeConfig.staticServePath + "/js/lib/highlight/styles/github.css'>"));
+            $("head").append($("<link rel='stylesheet' href='" + latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/styles/github.css'>"));
         }
         $.ajax({
-            url: latkeConfig.staticServePath + "/js/lib/highlight/highlight.pack.js",
+            url: latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/highlight.pack.js",
             dataType: "script",
             cache: true,
             success: function () {
@@ -499,7 +499,7 @@ $.extend(Page.prototype, {
         var tips = this.tips;
         try {
             $.ajax({
-                url: "http://rhythm.b3log.org:80/get-articles-by-tags.do?tags=" + tags
+                url: "https://rhythm.b3log.org/get-articles-by-tags.do?tags=" + tags
                         + "&blogHost=" + tips.blogHost + "&paginationPageSize=" + tips.externalRelevantArticlesDisplayCount,
                 type: "GET",
                 cache: true,
