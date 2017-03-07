@@ -15,4 +15,5 @@
 src/main/webapp/skins/*
 !src/main/webapp/skins/mobile
 !src/main/webapp/skins/next
+!src/main/webapp/skins/yang
 **/.DS_Store
