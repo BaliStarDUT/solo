@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 package org.b3log.solo.processor;
 
 import freemarker.template.Template;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
+import org.b3log.latke.ioc.inject.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.Pagination;
@@ -52,12 +45,21 @@ import org.b3log.solo.service.StatisticMgmtService;
 import org.b3log.solo.util.Skins;
 import org.json.JSONObject;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Index processor.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author <a href="mailto:385321165@qq.com">DASHU</a>
- * @version 1.2.2.6, Dec 27, 2015
+ * @version 1.2.4.6, Jun 28, 2017
  * @since 0.3.1
  */
 @RequestProcessor
@@ -95,8 +97,8 @@ public class IndexProcessor {
     /**
      * Shows index with the specified context.
      *
-     * @param context the specified context
-     * @param request the specified HTTP servlet request
+     * @param context  the specified context
+     * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
      */
     @RequestProcessing(value = {"/\\d*", ""}, uriPatternsMode = URIPatternMode.REGEX, method = HTTPRequestMethod.GET)
@@ -116,13 +118,22 @@ public class IndexProcessor {
             if (null != specifiedSkin) {
                 if ("default".equals(specifiedSkin)) {
                     specifiedSkin = preference.optString(Option.ID_C_SKIN_DIR_NAME);
+
+                    final Cookie cookie = new Cookie(Skin.SKIN, null);
+                    cookie.setMaxAge(60 * 60); // 1 hour
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
                 }
             } else {
                 specifiedSkin = preference.optString(Option.ID_C_SKIN_DIR_NAME);
             }
-            Templates.MAIN_CFG.setServletContextForTemplateLoading(SoloServletListener.getServletContext(),
-                    "/skins/" + specifiedSkin);
-            request.setAttribute(Keys.TEMAPLTE_DIR_NAME, specifiedSkin);
+
+            final Set<String> skinDirNames = Skins.getSkinDirNames();
+            if (skinDirNames.contains(specifiedSkin)) {
+                Templates.MAIN_CFG.setServletContextForTemplateLoading(SoloServletListener.getServletContext(),
+                        "/skins/" + specifiedSkin);
+                request.setAttribute(Keys.TEMAPLTE_DIR_NAME, specifiedSkin);
+            }
 
             Skins.fillLangs(preference.optString(Option.ID_C_LOCALE_STRING), (String) request.getAttribute(Keys.TEMAPLTE_DIR_NAME), dataModel);
 
@@ -145,9 +156,12 @@ public class IndexProcessor {
             statisticMgmtService.incBlogViewCount(request, response);
 
             // https://github.com/b3log/solo/issues/12060
-            final Cookie cookie = new Cookie(Skin.SKIN, specifiedSkin);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+            if (!preference.optString(Skin.SKIN_DIR_NAME).equals(specifiedSkin) && !Requests.mobileRequest(request)) {
+                final Cookie cookie = new Cookie(Skin.SKIN, specifiedSkin);
+                cookie.setMaxAge(60 * 60); // 1 hour
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
         } catch (final ServiceException e) {
             LOGGER.log(Level.ERROR, e.getMessage(), e);
 
@@ -162,8 +176,8 @@ public class IndexProcessor {
     /**
      * Shows kill browser page with the specified context.
      *
-     * @param context the specified context
-     * @param request the specified HTTP servlet request
+     * @param context  the specified context
+     * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
      */
     @RequestProcessing(value = "/kill-browser", method = HTTPRequestMethod.GET)
@@ -199,8 +213,8 @@ public class IndexProcessor {
     /**
      * Show register page.
      *
-     * @param context the specified context
-     * @param request the specified HTTP servlet request
+     * @param context  the specified context
+     * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
      */
     @RequestProcessing(value = "/register", method = HTTPRequestMethod.GET)

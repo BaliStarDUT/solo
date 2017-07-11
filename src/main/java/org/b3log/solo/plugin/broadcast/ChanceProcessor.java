@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 package org.b3log.solo.plugin.broadcast;
 
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.Future;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
+import org.b3log.latke.ioc.inject.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.servlet.HTTPRequestContext;
@@ -46,12 +41,18 @@ import org.b3log.solo.service.UserQueryService;
 import org.b3log.solo.util.QueryResults;
 import org.json.JSONObject;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.Future;
+
 
 /**
  * Broadcast chance processor.
- * 
+ *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.10, Nov 20, 2015
+ * @version 1.0.0.11, Jul 6, 2017
  * @since 0.6.0
  */
 @RequestProcessor
@@ -60,7 +61,7 @@ public class ChanceProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ChanceProcessor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ChanceProcessor.class);
 
     /**
      * Option management service.
@@ -84,7 +85,7 @@ public class ChanceProcessor {
      */
     @Inject
     private UserQueryService userQueryService;
-    
+
     /**
      * Preference query service.
      */
@@ -107,7 +108,6 @@ public class ChanceProcessor {
 
     /**
      * Adds a broadcast chance to option repository.
-     * 
      * <p>
      * Renders the response with a json object, for example,
      * <pre>
@@ -118,27 +118,23 @@ public class ChanceProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified http request context
-     * @param request the specified http servlet request
+     * @param context  the specified http request context
+     * @param request  the specified http servlet request
      * @param response the specified http servlet response
-     * @throws Exception 
+     * @throws Exception
      */
     @RequestProcessing(value = "/console/plugins/b3log-broadcast/chance", method = HTTPRequestMethod.POST)
     public void addChance(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
-        throws Exception {
+            throws Exception {
         final JSONRenderer renderer = new JSONRenderer();
-
         context.setRenderer(renderer);
-
         final JSONObject ret = new JSONObject();
-
         renderer.setJSONObject(ret);
 
         try {
             // TODO: verify b3 key
 
             final String time = request.getParameter("time");
-
             if (Strings.isEmptyOrNull(time)) {
                 ret.put(Keys.STATUS_CODE, false);
 
@@ -146,9 +142,7 @@ public class ChanceProcessor {
             }
 
             final long expirationTime = Long.valueOf(time);
-
             final JSONObject option = new JSONObject();
-
             option.put(Keys.OBJECT_ID, Option.ID_C_BROADCAST_CHANCE_EXPIRATION_TIME);
             option.put(Option.OPTION_VALUE, expirationTime);
             option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_BROADCAST);
@@ -170,11 +164,9 @@ public class ChanceProcessor {
 
     /**
      * Dose the client has a broadcast chance.
-     * 
      * <p>
      * If the request come from a user not administrator, consider it is no broadcast chance.
      * </p>
-     * 
      * <p>
      * Renders the response with a json object, for example,
      * <pre>
@@ -185,14 +177,14 @@ public class ChanceProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified http request context
-     * @param request the specified http servlet request
+     * @param context  the specified http request context
+     * @param request  the specified http servlet request
      * @param response the specified http servlet response
-     * @throws Exception 
+     * @throws Exception
      */
     @RequestProcessing(value = "/console/plugins/b3log-broadcast/chance", method = HTTPRequestMethod.GET)
     public void hasChance(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
-        throws Exception {
+            throws Exception {
         if (!userQueryService.isLoggedIn(request, response)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -200,11 +192,8 @@ public class ChanceProcessor {
         }
 
         final JSONRenderer renderer = new JSONRenderer();
-
         context.setRenderer(renderer);
-
         final JSONObject ret = new JSONObject();
-
         renderer.setJSONObject(ret);
 
         if (!userQueryService.isAdminLoggedIn(request)) {
@@ -216,7 +205,6 @@ public class ChanceProcessor {
 
         try {
             final JSONObject option = optionQueryService.getOptionById(Option.ID_C_BROADCAST_CHANCE_EXPIRATION_TIME);
-
             if (null == option) {
                 ret.put(Option.ID_C_BROADCAST_CHANCE_EXPIRATION_TIME, 0L);
                 ret.put(Keys.STATUS_CODE, false);
@@ -237,7 +225,6 @@ public class ChanceProcessor {
 
     /**
      * Submits a broadcast.
-     * 
      * <p>
      * Renders the response with a json object, for example,
      * <pre>
@@ -248,23 +235,21 @@ public class ChanceProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified http request context
-     * @param request the specified http servlet request, for example,
-     * <pre>
-     * {
-     *     "broadcast": {
-     *         "title": "",
-     *         "content": "",
-     *         "link": "" // optional
-     *     }
-     * }
-     * </pre>
+     * @param context  the specified http request context
+     * @param request  the specified http servlet request, for example,
+     *                 {
+     *                 "broadcast": {
+     *                 "title": "",
+     *                 "content": "",
+     *                 "link": "" // optional
+     *                 }
+     *                 }
      * @param response the specified http servlet response
-     * @throws Exception 
+     * @throws Exception
      */
     @RequestProcessing(value = "/console/plugins/b3log-broadcast", method = HTTPRequestMethod.POST)
     public void submitBroadcast(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
-        throws Exception {
+            throws Exception {
         if (!userQueryService.isAdminLoggedIn(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -272,11 +257,8 @@ public class ChanceProcessor {
         }
 
         final JSONRenderer renderer = new JSONRenderer();
-
         context.setRenderer(renderer);
-
         final JSONObject ret = new JSONObject();
-
         renderer.setJSONObject(ret);
 
         try {
@@ -289,7 +271,7 @@ public class ChanceProcessor {
             final String clientName = "B3log Solo";
             final String clientVersion = SoloServletListener.VERSION;
             final String clientTitle = preference.getString(Option.ID_C_BLOG_TITLE);
-            final String clientRuntimeEnv = Latkes.getRuntimeEnv().name();
+            final String clientRuntimeEnv = "LOCAL";
 
             final JSONObject broadcastRequest = new JSONObject();
 
@@ -308,8 +290,7 @@ public class ChanceProcessor {
             httpRequest.setRequestMethod(HTTPRequestMethod.POST);
             httpRequest.setPayload(broadcastRequest.toString().getBytes("UTF-8"));
 
-            @SuppressWarnings("unchecked")
-            final Future<HTTPResponse> future = (Future<HTTPResponse>) urlFetchService.fetchAsync(httpRequest);
+            @SuppressWarnings("unchecked") final Future<HTTPResponse> future = (Future<HTTPResponse>) urlFetchService.fetchAsync(httpRequest);
             final HTTPResponse result = future.get();
 
             if (HttpServletResponse.SC_OK == result.getResponseCode()) {

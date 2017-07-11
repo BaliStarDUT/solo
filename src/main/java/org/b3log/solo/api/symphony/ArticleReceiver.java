@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.b3log.solo.api.symphony;
 
 import org.b3log.latke.Keys;
+import org.b3log.latke.ioc.inject.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.User;
@@ -33,13 +34,9 @@ import org.b3log.solo.service.ArticleMgmtService;
 import org.b3log.solo.service.ArticleQueryService;
 import org.b3log.solo.service.PreferenceQueryService;
 import org.b3log.solo.service.UserQueryService;
-import org.b3log.solo.util.Markdowns;
 import org.b3log.solo.util.QueryResults;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  * Article receiver (from B3log Symphony).
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.3.7, Jan 15, 2017
+ * @version 1.0.3.8, Jan 25, 2017
  * @since 0.5.5
  */
 @RequestProcessor
@@ -56,26 +53,26 @@ public class ArticleReceiver {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleReceiver.class.getName());
-    /**
-     * Article abstract length.
-     */
-    private static final int ARTICLE_ABSTRACT_LENGTH = 500;
+    private static final Logger LOGGER = Logger.getLogger(ArticleReceiver.class);
+
     /**
      * Preference query service.
      */
     @Inject
     private PreferenceQueryService preferenceQueryService;
+
     /**
      * Article management service.
      */
     @Inject
     private ArticleMgmtService articleMgmtService;
+
     /**
      * Article query service.
      */
     @Inject
     private ArticleQueryService articleQueryService;
+
     /**
      * User query service.
      */
@@ -134,12 +131,7 @@ public class ArticleReceiver {
 
             article.put(Article.ARTICLE_AUTHOR_EMAIL, admin.getString(User.USER_EMAIL));
             final String articleContent = article.optString(Article.ARTICLE_CONTENT);
-            final String plainTextContent = Jsoup.clean(Markdowns.toHTML(articleContent), Whitelist.none());
-            if (plainTextContent.length() > ARTICLE_ABSTRACT_LENGTH) {
-                article.put(Article.ARTICLE_ABSTRACT, plainTextContent.substring(0, ARTICLE_ABSTRACT_LENGTH) + "....");
-            } else {
-                article.put(Article.ARTICLE_ABSTRACT, plainTextContent);
-            }
+            article.put(Article.ARTICLE_ABSTRACT, Article.getAbstract(articleContent));
             article.put(Article.ARTICLE_IS_PUBLISHED, true);
             article.put(Common.POST_TO_COMMUNITY, false); // Do not send to rhythm
             article.put(Article.ARTICLE_COMMENTABLE, true);
@@ -227,12 +219,7 @@ public class ArticleReceiver {
             }
 
             final String articleContent = article.optString(Article.ARTICLE_CONTENT);
-            final String plainTextContent = Jsoup.clean(Markdowns.toHTML(articleContent), Whitelist.none());
-            if (plainTextContent.length() > ARTICLE_ABSTRACT_LENGTH) {
-                article.put(Article.ARTICLE_ABSTRACT, plainTextContent.substring(0, ARTICLE_ABSTRACT_LENGTH) + "....");
-            } else {
-                article.put(Article.ARTICLE_ABSTRACT, plainTextContent);
-            }
+            article.put(Article.ARTICLE_ABSTRACT, Article.getAbstract(articleContent));
             article.put(Article.ARTICLE_IS_PUBLISHED, true);
             article.put(Common.POST_TO_COMMUNITY, false); // Do not send to rhythm
             article.put(Article.ARTICLE_COMMENTABLE, true);

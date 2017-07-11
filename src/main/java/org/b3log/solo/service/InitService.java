@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,11 @@
  */
 package org.b3log.solo.service;
 
-import java.net.URL;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.RuntimeDatabase;
-import org.b3log.latke.RuntimeEnv;
+import org.b3log.latke.ioc.inject.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.Role;
@@ -49,16 +41,7 @@ import org.b3log.latke.util.freemarker.Templates;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.model.*;
 import org.b3log.solo.model.Option.DefaultPreference;
-import org.b3log.solo.repository.ArchiveDateArticleRepository;
-import org.b3log.solo.repository.ArchiveDateRepository;
-import org.b3log.solo.repository.ArticleRepository;
-import org.b3log.solo.repository.CommentRepository;
-import org.b3log.solo.repository.LinkRepository;
-import org.b3log.solo.repository.OptionRepository;
-import org.b3log.solo.repository.StatisticRepository;
-import org.b3log.solo.repository.TagArticleRepository;
-import org.b3log.solo.repository.TagRepository;
-import org.b3log.solo.repository.UserRepository;
+import org.b3log.solo.repository.*;
 import org.b3log.solo.util.Comments;
 import org.b3log.solo.util.Skins;
 import org.b3log.solo.util.Thumbnails;
@@ -67,11 +50,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.ServletContext;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Solo initialization service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.5.2.11, Nov 8, 2016
+ * @version 1.5.2.13, Jul 9, 2017
  * @since 0.4.0
  */
 @Service
@@ -80,7 +70,17 @@ public class InitService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(InitService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InitService.class);
+
+    /**
+     * Maximum count of initialization.
+     */
+    private static final int MAX_RETRIES_CNT = 3;
+
+    /**
+     * Initialized time zone id.
+     */
+    private static final String INIT_TIME_ZONE_ID = "Asia/Shanghai";
 
     /**
      * Statistic repository.
@@ -143,16 +143,6 @@ public class InitService {
     private LinkRepository linkRepository;
 
     /**
-     * Maximum count of initialization.
-     */
-    private static final int MAX_RETRIES_CNT = 3;
-
-    /**
-     * Initialized time zone id.
-     */
-    private static final String INIT_TIME_ZONE_ID = "Asia/Shanghai";
-
-    /**
      * Language service.
      */
     @Inject
@@ -183,7 +173,6 @@ public class InitService {
 
     /**
      * Initializes Solo.
-     *
      * <p>
      * Initializes the followings in sequence:
      * <ol>
@@ -192,23 +181,19 @@ public class InitService {
      * <li>Administrator</li>
      * </ol>
      * </p>
-     *
      * <p>
      * We will try to initialize Solo 3 times at most.
      * </p>
-     *
      * <p>
      * Posts "Hello World!" article and its comment while Solo initialized.
      * </p>
      *
-     * @param requestJSONObject the specified request json object, for example,      <pre>
-     * {
-     *     "userName": "",
-     *     "userEmail": "",
-     *     "userPassword": "", // Unhashed
-     * }
-     * </pre>
-     *
+     * @param requestJSONObject the specified request json object, for example,
+     *                          {
+     *                          "userName": "",
+     *                          "userEmail": "",
+     *                          "userPassword": "", // Unhashed
+     *                          }
      * @throws ServiceException service exception
      */
     public void init(final JSONObject requestJSONObject) throws ServiceException {
@@ -216,24 +201,19 @@ public class InitService {
             return;
         }
 
-        final RuntimeEnv runtimeEnv = Latkes.getRuntimeEnv();
+        LOGGER.log(Level.INFO, "Solo is running with database [{0}], creates all tables", Latkes.getRuntimeDatabase());
 
-        if (RuntimeEnv.LOCAL == runtimeEnv) {
-            LOGGER.log(Level.INFO, "Solo is running on [" + runtimeEnv + "] environment, database [{0}], creates "
-                    + "all tables", Latkes.getRuntimeDatabase());
+        if (Latkes.RuntimeDatabase.H2 == Latkes.getRuntimeDatabase()) {
+            String dataDir = Latkes.getLocalProperty("jdbc.URL");
+            dataDir = dataDir.replace("~", System.getProperty("user.home"));
+            LOGGER.log(Level.INFO, "YOUR DATA will be stored in directory [" + dataDir + "], "
+                    + "please pay more attention to it~");
+        }
 
-            if (RuntimeDatabase.H2 == Latkes.getRuntimeDatabase()) {
-                String dataDir = Latkes.getLocalProperty("jdbc.URL");
-                dataDir = dataDir.replace("~", System.getProperty("user.home"));
-                LOGGER.log(Level.INFO, "YOUR DATA will be stored in directory [" + dataDir + "], "
-                        + "please pay more attention to it~");
-            }
-
-            final List<CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
-            for (final CreateTableResult createTableResult : createTableResults) {
-                LOGGER.log(Level.DEBUG, "Create table result[tableName={0}, isSuccess={1}]",
-                        new Object[]{createTableResult.getName(), createTableResult.isSuccess()});
-            }
+        final List<CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
+        for (final CreateTableResult createTableResult : createTableResults) {
+            LOGGER.log(Level.DEBUG, "Create table result[tableName={0}, isSuccess={1}]",
+                    createTableResult.getName(), createTableResult.isSuccess());
         }
 
         int retries = MAX_RETRIES_CNT;
@@ -289,7 +269,7 @@ public class InitService {
 
             final HTTPRequest req = new HTTPRequest();
             req.setURL(new URL(Latkes.getServePath() + "/blog/symphony/user"));
-            urlFetchService.fetch(req);
+            urlFetchService.fetchAsync(req);
         } catch (final Exception e) {
             LOGGER.log(Level.TRACE, "Sync account failed");
         }
@@ -408,15 +388,13 @@ public class InitService {
     /**
      * Archive the create date with the specified article.
      *
-     * @param article the specified article, for example,      <pre>
-     * {
-     *     ....,
-     *     "oId": "",
-     *     "articleCreateDate": java.util.Date,
-     *     ....
-     * }
-     * </pre>
-     *
+     * @param article the specified article, for example,
+     *                {
+     *                ....,
+     *                "oId": "",
+     *                "articleCreateDate": java.util.Date,
+     *                ....
+     *                }
      * @throws RepositoryException repository exception
      */
     public void archiveDate(final JSONObject article) throws RepositoryException {
@@ -446,7 +424,7 @@ public class InitService {
     /**
      * Adds relation of the specified tags and article.
      *
-     * @param tags the specified tags
+     * @param tags    the specified tags
      * @param article the specified article
      * @throws RepositoryException repository exception
      */
@@ -466,7 +444,7 @@ public class InitService {
      * Tags the specified article with the specified tag titles.
      *
      * @param tagTitles the specified tag titles
-     * @param article the specified article
+     * @param article   the specified article
      * @return an array of tags
      * @throws RepositoryException repository exception
      */
@@ -478,7 +456,7 @@ public class InitService {
             final JSONObject tag = new JSONObject();
 
             LOGGER.log(Level.TRACE, "Found a new tag[title={0}] in article[title={1}]",
-                    new Object[]{tagTitle, article.optString(Article.ARTICLE_TITLE)});
+                    tagTitle, article.optString(Article.ARTICLE_TITLE));
             tag.put(Tag.TAG_TITLE, tagTitle);
             tag.put(Tag.TAG_REFERENCE_COUNT, 1);
             tag.put(Tag.TAG_PUBLISHED_REFERENCE_COUNT, 1);
@@ -496,14 +474,12 @@ public class InitService {
     /**
      * Initializes administrator with the specified request json object, and then logins it.
      *
-     * @param requestJSONObject the specified request json object, for example,      <pre>
-     * {
-     *     "userName": "",
-     *     "userEmail": "",
-     *     "userPassowrd": "" // Unhashed
-     * }
-     * </pre>
-     *
+     * @param requestJSONObject the specified request json object, for example,
+     *                          {
+     *                          "userName": "",
+     *                          "userEmail": "",
+     *                          "userPassowrd": "" // Unhashed
+     *                          }
      * @throws Exception exception
      */
     private void initAdmin(final JSONObject requestJSONObject) throws Exception {
@@ -546,7 +522,7 @@ public class InitService {
      * Initializes statistic.
      *
      * @throws RepositoryException repository exception
-     * @throws JSONException json exception
+     * @throws JSONException       json exception
      */
     private void initStatistic() throws RepositoryException, JSONException {
         LOGGER.debug("Initializing statistic....");

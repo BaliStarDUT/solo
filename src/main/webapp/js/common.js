@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.2.6, Nov 28, 2013
+ * @version 1.1.0.0, May 21, 2017
  */
 
 /**
@@ -64,9 +64,9 @@ var Util = {
         var addKillPanel = function() {
             if (Cookie.readCookie("showKill") === "") {
                 var left = ($(window).width() - 701) / 2,
-                top = ($(window).height() - 420) / 2;
+                top1 = ($(window).height() - 420) / 2;
                 $("body").append("<div style='display: block; height: 100%; width: 100%; position: fixed; background-color: rgb(0, 0, 0); opacity: 0.6; top: 0px;z-index:11'></div>"
-                        + "<iframe style='left:" + left + "px;z-index:20;top: " + top + "px; position: fixed; border: 0px none; width: 701px; height: 420px;' src='" + latkeConfig.servePath + "/kill-browser'></iframe>");
+                        + "<iframe style='left:" + left + "px;z-index:20;top: " + top1 + "px; position: fixed; border: 0px none; width: 701px; height: 420px;' src='" + latkeConfig.servePath + "/kill-browser'></iframe>");
             }
         };
 
@@ -102,10 +102,9 @@ var Util = {
         str = commentSplited[0];
         for (var j = 1; j < commentSplited.length; j++) {
             var key = commentSplited[j].substr(0, 2);
-            str += "<img src='" + latkeConfig.staticServePath + "/skins/" +
-                    Label.skinDirName + "/images/emotions/em" + key + ".png' alt='" +
+            str += "<img width='20' src='" + latkeConfig.staticServePath + "/images/emotions/em" + key + ".png' alt='" +
                     Label["em" + key + "Label"] + "' title='" +
-                    Label["em" + key + "Label"] + "'/>" + commentSplited[j].substr(3);
+                    Label["em" + key + "Label"] + "'/> " + commentSplited[j].substr(3);
         }
         return str;
     },

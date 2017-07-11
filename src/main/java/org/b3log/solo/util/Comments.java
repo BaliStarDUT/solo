@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 package org.b3log.solo.util;
 
 
-import org.b3log.solo.model.*;
+import org.b3log.solo.model.Article;
+import org.b3log.solo.model.Page;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
  * @description index for admin
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
- * @version 1.0.3.2, Sep 2, 2013
+ * @version 1.1.3.2, Mar 31, 2017
  */
 var Admin = function () {
     this.register = {};
     // 工具栏下的工具
     this.tools = ['#page-list', '#file-list', '#link-list', '#preference',
-        '#user-list', '#plugin-list', '#others'];
+        '#user-list', '#plugin-list', '#others', '#category-list'];
     // 多用户时，一般用户不能使用的功能
     this.adTools = ['link-list', 'preference', 'file-list', 'page-list',
-        'user-list', 'plugin-list', 'others'];
+        'user-list', 'plugin-list', 'others', 'category-list'];
 };
 
 $.extend(Admin.prototype, {
@@ -264,7 +264,7 @@ $.extend(Admin.prototype, {
 });
 
 var admin = new Admin();/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -363,7 +363,7 @@ admin.editors.articleEditor = {};
 admin.editors.abstractEditor = {};
 admin.editors.pageEditor = {};
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -488,7 +488,7 @@ admin.editors.tinyMCE = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -593,7 +593,7 @@ admin.editors.KindEditor = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -608,16 +608,17 @@ admin.editors.KindEditor = {
  * limitations under the License.
  */
 /**
- * @fileoverview markdowm CodeMirror editor 
+ * @fileoverview markdowm CodeMirror editor
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.3.1.4, Nov 8, 2016
+ * @version 1.4.2.4, Apr 25, 2017
  */
 
 Util.processClipBoard = function (text, cm) {
-    var text = toMarkdown(text, {converters: [
-        ], gfm: true});
+    var text = toMarkdown(text, {
+        converters: [], gfm: true
+    });
 
     // ascii 160 替换为 30
     text = $('<div>' + text + '</div>').text().replace(/\n{2,}/g, '\n\n').replace(/ /g, ' ');
@@ -643,7 +644,8 @@ Util.processClipBoard = function (clipboardData, cm) {
         return '';
     }
 
-    var text = toMarkdown(clipboardData.getData("text/html"), {converters: [
+    var text = toMarkdown(clipboardData.getData("text/html"), {
+        converters: [
             {
                 filter: 'img',
                 replacement: function (innerHTML, node) {
@@ -653,12 +655,120 @@ Util.processClipBoard = function (clipboardData, cm) {
                     return "![](" + node.src + ")";
                 }
             }
-        ], gfm: true});
+        ], gfm: true
+    });
+
+    // code 中 <, > 进行转义
+    var codes = text.split('```');
+    if (codes.length > 1) {
+        for (var i = 0, iMax = codes.length; i < iMax; i++) {
+            if (i % 2 === 1) {
+                codes[i] = codes[i].replace(/<\/span><span style="color:#\w{6};">/g, '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+        }
+    }
+    text = codes.join('```');
 
     // ascii 160 替换为 30
     text = $('<div>' + text + '</div>').text().replace(/\n{2,}/g, '\n\n').replace(/ /g, ' ');
     return $.trim(text);
 };
+
+Util.initUploadFile = function (obj) {
+    var isImg = false;
+    $('#' + obj.id).fileupload({
+        multipart: true,
+        pasteZone: obj.pasteZone,
+        dropZone: obj.pasteZone,
+        url: "https://up.qbox.me/",
+        paramName: "file",
+        add: function (e, data) {
+            if (data.files[0].name) {
+                var processName = data.files[0].name.match(/[a-zA-Z0-9.]/g).join('');
+                filename = getUUID() + '-' + processName;
+
+                // 文件名称全为中文时，移除 ‘-’
+                if (processName.split('.')[0] === '') {
+                    filename = getUUID() + processName;
+                }
+            } else {
+                filename = getUUID() + '.' + data.files[0].type.split("/")[1];
+            }
+
+
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+                var reader = new FileReader();
+                reader.readAsArrayBuffer(data.files[0]);
+                reader.onload = function (evt) {
+                    var fileBuf = new Uint8Array(evt.target.result.slice(0, 11));
+                    isImg = data.files[0].type.indexOf('image') === 0 ? true : false;
+
+                    data.submit();
+                }
+            } else {
+                data.submit();
+            }
+        },
+        formData: function (form) {
+            var data = form.serializeArray();
+
+            data.push({
+                name: 'key', value: "file/" + (new Date()).getFullYear() + "/"
+                + ((new Date()).getMonth() + 1) + '/' + filename
+            });
+
+            data.push({name: 'token', value: obj.qiniuUploadToken});
+
+            return data;
+        },
+        submit: function (e, data) {
+            if (obj.editor.replaceRange) {
+                var cursor = obj.editor.getCursor();
+                obj.editor.replaceRange(obj.uploadingLabel, cursor, cursor);
+            } else {
+                $('#' + obj.id + ' input').prop('disabled', false);
+            }
+        },
+        done: function (e, data) {
+            var qiniuKey = data.result.key;
+            if (!qiniuKey) {
+                alert("Upload error");
+
+                return;
+            }
+
+            if (obj.editor.replaceRange) {
+                var cursor = obj.editor.getCursor();
+
+                if (isImg) {
+                    obj.editor.replaceRange('![' + filename + '](' + obj.qiniuDomain + '/' + qiniuKey + ') \n\n',
+                        CodeMirror.Pos(cursor.line, cursor.ch - obj.uploadingLabel.length), cursor);
+                } else {
+                    obj.editor.replaceRange('[' + filename + '](' + obj.qiniuDomain + '/' + qiniuKey + ') \n\n',
+                        CodeMirror.Pos(cursor.line, cursor.ch - obj.uploadingLabel.length), cursor);
+                }
+            } else {
+                obj.editor.$it.val('![' + filename + '](' + obj.qiniuDomain + '/' + qiniuKey + ') \n\n');
+                $('#' + obj.id + ' input').prop('disabled', false);
+            }
+        },
+        fail: function (e, data) {
+            alert("Upload error: " + data.errorThrown);
+            if (obj.editor.replaceRange) {
+                var cursor = obj.editor.getCursor();
+                obj.editor.replaceRange('',
+                    CodeMirror.Pos(cursor.line, cursor.ch - obj.uploadingLabel.length), cursor);
+            } else {
+                $('#' + obj.id + ' input').prop('disabled', false);
+            }
+        }
+    }).on('fileuploadprocessalways', function (e, data) {
+        var currentFile = data.files[data.index];
+        if (data.files.error && currentFile.error) {
+            alert(currentFile.error);
+        }
+    });
+}
 
 admin.editors.CodeMirror = {
     /*
@@ -694,8 +804,8 @@ admin.editors.CodeMirror = {
                 if (Util.startsWith(text, input)) {
                     autocompleteHints.push({
                         displayText: '<span style="font-size: 1rem;line-height:22px"><img style="width: 1rem;margin:3px 0;float:left" src="'
-                                + latkeConfig.servePath + '/js/lib/emojify.js-1.1.0/images/basic/' + text + '.png"> ' +
-                                displayText.toString() + '</span>',
+                        + latkeConfig.servePath + '/js/lib/emojify.js-1.1.0/images/basic/' + text + '.png"> ' +
+                        displayText.toString() + '</span>',
                         text: ":" + text + ": "
                     });
                     matchCnt++;
@@ -724,16 +834,16 @@ admin.editors.CodeMirror = {
             toolbar: [
                 {name: 'bold'},
                 {name: 'italic'},
-                '|',
                 {name: 'quote'},
+                {name: 'link'},
                 {name: 'unordered-list'},
                 {name: 'ordered-list'},
-                '|',
-                {name: 'link'},
-                '|',
+                {
+                    name: 'image',
+                    html: '<span style="display: inline-block;top:1px" class="tooltipped tooltipped-n" aria-label="' + Label.uploadFilesLabel + '" ><form id="' + conf.id + 'fileUpload" method="POST" enctype="multipart/form-data"><label class="icon-upload"><input type="file"/></label></form></span>'
+                },
                 {name: 'redo'},
                 {name: 'undo'},
-                '|',
                 {name: 'preview'},
                 {name: 'fullscreen'}],
             extraKeys: {
@@ -742,6 +852,15 @@ admin.editors.CodeMirror = {
             }
         });
         commentEditor.render();
+
+        Util.initUploadFile({
+            "id": conf.id + 'fileUpload',
+            "pasteZone": $('#' + conf.id).next().next(),
+            "qiniuUploadToken": qiniu.qiniuUploadToken,
+            "editor": commentEditor.codemirror,
+            "uploadingLabel": 'uploading...',
+            "qiniuDomain": '//' + qiniu.qiniuDomain
+        });
 
         this[conf.id] = commentEditor.codemirror;
 
@@ -797,7 +916,7 @@ admin.editors.CodeMirror = {
         $('.editor-toolbar').remove();
     }
 };/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -911,7 +1030,7 @@ $.extend(TablePaginate.prototype, {
     }
 });
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -930,7 +1049,7 @@ $.extend(TablePaginate.prototype, {
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.3.5.5, Nov 9, 2016
+ * @version 1.4.5.7, May 21, 2017
  */
 admin.article = {
     currentEditorType: '',
@@ -946,6 +1065,52 @@ admin.article = {
     autoSaveDraftTimer: "",
     // 自动保存间隔
     AUTOSAVETIME: 1000 * 60,
+    /**
+     * 初始化上传组建
+     */
+    initUploadFile: function (id) {
+        var filename = "";
+        $('#' + id).fileupload({
+            multipart: true,
+            url: "https://up.qbox.me",
+            add: function (e, data) {
+                filename = data.files[0].name;
+
+                data.submit();
+
+                $('#' + id + ' span').text('uploading...');
+            },
+            formData: function (form) {
+                var data = form.serializeArray();
+                var ext = filename.substring(filename.lastIndexOf(".") + 1);
+
+                data.push({name: 'key', value: getUUID() + "." + ext});
+                data.push({name: 'token', value: qiniu.qiniuUploadToken});
+
+                return data;
+            },
+            done: function (e, data) {
+                $('#' + id + ' span').text('');
+                var qiniuKey = data.result.key;
+                if (!qiniuKey) {
+                    alert("Upload error, please check Qiniu configurations");
+
+                    return;
+                }
+
+                $('#' + id).after('<div>![' + data.files[0].name + '](http://'
+                        + qiniu.qiniuDomain + qiniuKey + ')</div>');
+            },
+            fail: function (e, data) {
+                $('#' + id + ' span').text("Upload error, please check Qiniu configurations [" + data.errorThrown + "]");
+            }
+        }).on('fileuploadprocessalways', function (e, data) {
+            var currentFile = data.files[data.index];
+            if (data.files.error && currentFile.error) {
+                alert(currentFile.error);
+            }
+        });
+    },
     /**
      * @description 获取文章并把值塞入发布文章页面 
      * @param {String} id 文章 id
@@ -1235,10 +1400,12 @@ admin.article = {
         if (this.status) {
             if (this.status.isArticle) {
                 $("#unSubmitArticle").show();
-                $("#submitArticle").hide();
+                $("#saveArticle").hide();
+                $("#submitArticle").show();
             } else {
                 $("#submitArticle").show();
                 $("#unSubmitArticle").hide();
+                $("#saveArticle").show();
             }
             if (this.status.articleHadBeenPublished) {
                 $("#postToCommunityPanel").hide();
@@ -1249,6 +1416,7 @@ admin.article = {
         } else {
             $("#submitArticle").show();
             $("#unSubmitArticle").hide();
+            $("#saveArticle").show();
             // 1.0.0 开始默认会发布到社区
             // $("#postToCommunityPanel").show();
         }
@@ -1286,7 +1454,7 @@ admin.article = {
             }
         });
 
-        $(".markdown-preview-main").html("");
+        $(".editor-preview-active").html("").removeClass('editor-preview-active');
         $("#uploadContent").remove();
     },
     /**
@@ -1350,47 +1518,7 @@ admin.article = {
             }
         });
 
-        // upload
-        var qiniu = window.qiniu;
-
-        var filename = "";
-        $('#articleUpload').fileupload({
-            multipart: true,
-            url: "https://up.qbox.me",
-            add: function (e, data) {
-                filename = data.files[0].name;
-
-                data.submit();
-            },
-            formData: function (form) {
-                var data = form.serializeArray();
-                var ext = filename.substring(filename.lastIndexOf(".") + 1);
-
-                data.push({name: 'key', value: getUUID() + "." + ext});
-                data.push({name: 'token', value: qiniu.qiniuUploadToken});
-
-                return data;
-            },
-            done: function (e, data) {
-                var qiniuKey = data.result.key;
-                if (!qiniuKey) {
-                    alert("Upload error");
-
-                    return;
-                }
-
-                $('#articleUpload').after('<div id="uploadContent">!<a target="_blank" href="http://' + qiniu.qiniuDomain + qiniuKey + '">[' + filename + ']</a>(http://'
-                        + qiniu.qiniuDomain + qiniuKey + ')</div>');
-            },
-            fail: function (e, data) {
-                alert("Upload error: " + data.errorThrown);
-            }
-        }).on('fileuploadprocessalways', function (e, data) {
-            var currentFile = data.files[data.index];
-            if (data.files.error && currentFile.error) {
-                alert(currentFile.error);
-            }
-        });
+        this.initUploadFile('articleUpload');
 
         // editor
         admin.editors.articleEditor = new SoloEditor({
@@ -1588,7 +1716,7 @@ function getUUID() {
 }
 ;
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1718,7 +1846,7 @@ admin.comment = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1867,7 +1995,7 @@ admin.register["article-list"] =  {
     "init": admin.articleList.init,
     "refresh": admin.articleList.getList
 }/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1980,7 +2108,7 @@ admin.register["draft-list"] =  {
     "init": admin.draftList.init,
     "refresh": admin.draftList.getList
 };/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1999,7 +2127,7 @@ admin.register["draft-list"] =  {
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.2.5, Nov 8, 2016
+ * @version 1.2.2.5, Apr 9, 2017
  */
 
 /* page-list 相关操作 */
@@ -2121,16 +2249,16 @@ admin.pageList = {
                         } else {
                             pageData[i].pageOrder = '<div class="table-center" style="width:14px">\
                                         <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'down\');" \
-                                        class="table-downIcon"></span></div>';
+                                        class="icon-move-down"></span></div>';
                         }
                     } else if (i === pages.length - 1) {
                         pageData[i].pageOrder = '<div class="table-center" style="width:14px">\
-                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'up\');" class="table-upIcon"></span>\
+                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
                                     </div>';
                     } else {
                         pageData[i].pageOrder = '<div class="table-center" style="width:38px">\
-                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'up\');" class="table-upIcon"></span>\
-                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'down\');" class="table-downIcon"></span>\
+                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
+                                    <span onclick="admin.pageList.changeOrder(' + pages[i].oId + ', ' + i + ', \'down\');" class="icon-move-down"></span>\
                                     </div>';
                     }
 
@@ -2427,7 +2555,7 @@ admin.register["page-list"] = {
     "refresh": admin.pageList.getList
 }
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2572,7 +2700,7 @@ admin.register.others = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2591,7 +2719,7 @@ admin.register.others = {
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.1.4, Feb 23, 2013
+ * @version 1.1.1.4, Apr 9, 2017
  */
 
 /* link-list 相关操作 */
@@ -2603,8 +2731,7 @@ admin.linkList = {
         currentPage: 1
     },
     id: "",
-    
-    /* 
+    /*
      * 初始化 table, pagination
      */
     init: function (page) {
@@ -2634,7 +2761,7 @@ admin.linkList = {
         
         $("#updateLink").dialog({
             width: 700,
-            height: 180,
+            height: 210,
             "modal": true,
             "hideFooter": true
         });
@@ -2676,17 +2803,17 @@ admin.linkList = {
                             linkData[i].linkOrder = "";
                         } else {
                             linkData[i].linkOrder = '<div class="table-center" style="width:14px">\
-                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'down\');" class="table-downIcon"></span>\
+                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'down\');" class="icon-move-down"></span>\
                             </div>';
                         }
                     } else if (i === links.length - 1) {
                         linkData[i].linkOrder = '<div class="table-center" style="width:14px">\
-                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'up\');" class="table-upIcon"></span>\
+                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
                             </div>';
                     } else {
                         linkData[i].linkOrder = '<div class="table-center" style="width:38px">\
-                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'up\');" class="table-upIcon"></span>\
-                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'down\');" class="table-downIcon"></span>\
+                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
+                                <span onclick="admin.linkList.changeOrder(' + links[i].oId + ', ' + i + ', \'down\');" class="icon-move-down"></span>\
                             </div>';
                     }
                     
@@ -2922,7 +3049,7 @@ admin.register["link-list"] =  {
     "init": admin.linkList.init,
     "refresh": admin.linkList.getList
 }/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2941,7 +3068,7 @@ admin.register["link-list"] =  {
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.2.1.9, Nov 20, 2015
+ * @version 1.2.1.10, Nov 15, 2016
  */
 
 /* preference 相关操作 */
@@ -3201,8 +3328,11 @@ admin.preference = {
             cache: false,
             data: JSON.stringify(requestJSONObject),
             success: function (result, textStatus) {
+                if (result.sc) {
+                    window.location.reload();
+                }
+                
                 $("#tipMsg").text(result.msg);
-
                 $("#loadMsg").text("");
             }
         });
@@ -3220,7 +3350,7 @@ admin.register["preference"] = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3392,11 +3522,11 @@ admin.register["plugin-list"] = {
     "obj": admin.pluginList,
     "init": admin.pluginList.init,
     "refresh": function() {
-        admin.claerTip();
+        $("#loadMsg").text("");
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3456,7 +3586,7 @@ admin.userList = {
 
         $("#userUpdate").dialog({
             width: 700,
-            height: 250,
+            height: 300,
             "modal": true,
             "hideFooter": true
         });
@@ -3757,7 +3887,374 @@ admin.register["user-list"] = {
     "init": admin.userList.init,
     "refresh": admin.userList.getList
 }/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * category list for admin
+ *
+ * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
+ * @author <a href="http://88250.b3log.org">Liang Ding</a>
+ * @version 1.1.1.1, Apr 10, 2017
+ * @since 2.0.0
+ */
+
+/* category-list 相关操作 */
+admin.categoryList = {
+    tablePagination: new TablePaginate("category"),
+    pageInfo: {
+        currentCount: 1,
+        pageCount: 1,
+        currentPage: 1
+    },
+    /* 
+     * 初始化 table, pagination
+     */
+    init: function(page) {
+        this.tablePagination.buildTable([{
+                text: "",
+                index: "linkOrder",
+                width: 60
+            }, {
+                style: "padding-left: 12px;",
+                text: Label.titleLabel,
+                index: "categoryTitle",
+                width: 230
+            }, {
+                style: "padding-left: 12px;",
+                text: 'URI',
+                index: "categoryURI",
+                width: 230
+            }, {
+                style: "padding-left: 12px;",
+                text: Label.descriptionLabel,
+                index: "categoryDesc",
+                minWidth: 180
+            }]);
+
+        this.tablePagination.initPagination();
+        this.getList(page);
+
+        $("#categoryUpdate").dialog({
+            width: 700,
+            height: 260,
+            "modal": true,
+            "hideFooter": true
+        });
+
+        // For tag auto-completion
+        $.ajax({// Gets all tags
+            url: latkeConfig.servePath + "/console/tags",
+            type: "GET",
+            cache: false,
+            success: function (result, textStatus) {
+                $("#tipMsg").text(result.msg);
+                if (!result.sc) {
+                    $("#loadMsg").text("");
+                    return;
+                }
+
+                if (0 >= result.tags.length) {
+                    return;
+                }
+
+                var tags = [];
+                for (var i = 0; i < result.tags.length; i++) {
+                    tags.push(result.tags[i].tagTitle);
+                }
+
+                $("#categoryTags").completed({
+                    height: 160,
+                    buttonText: Label.selectLabel,
+                    data: tags
+                }).width($("#categoryTags").parent().width() - 68);
+
+                $("#loadMsg").text("");
+            }
+        });
+    },
+    /* 
+     * 根据当前页码获取列表
+     * @pagNum 当前页码
+     */
+    getList: function(pageNum) {
+        $("#loadMsg").text(Label.loadingLabel);
+        $("#tipMsg").text("");
+        this.pageInfo.currentPage = pageNum;
+        var that = this;
+
+        $.ajax({
+            url: latkeConfig.servePath + "/console/categories/" + pageNum + "/" + Label.PAGE_SIZE + "/" + Label.WINDOW_SIZE,
+            type: "GET",
+            cache: false,
+            success: function(result, textStatus) {
+                $("#tipMsg").text(result.msg);
+                if (!result.sc) {
+                    $("#loadMsg").text("");
+                    return;
+                }
+
+                var categories = result.categories;
+                var categoryData = [];
+                admin.categoryList.pageInfo.currentCount = categories.length;
+                admin.categoryList.pageInfo.pageCount = result.pagination.paginationPageCount === 0 ? 1 : result.pagination.paginationPageCount;
+
+                for (var i = 0; i < categories.length; i++) {
+                    categoryData[i] = {};
+                    if (i === 0) {
+                        if (categories.length === 1) {
+                            categoryData[i].linkOrder = "";
+                        } else {
+                            categoryData[i].linkOrder = '<div class="table-center" style="width:14px">\
+                                <span onclick="admin.categoryList.changeOrder(' + categories[i].oId + ', ' + i + ', \'down\');" class="icon-move-down"></span>\
+                            </div>';
+                        }
+                    } else if (i === categories.length - 1) {
+                        categoryData[i].linkOrder = '<div class="table-center" style="width:14px">\
+                                <span onclick="admin.categoryList.changeOrder(' + categories[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
+                            </div>';
+                    } else {
+                        categoryData[i].linkOrder = '<div class="table-center" style="width:38px">\
+                                <span onclick="admin.categoryList.changeOrder(' + categories[i].oId + ', ' + i + ', \'up\');" class="icon-move-up"></span>\
+                                <span onclick="admin.categoryList.changeOrder(' + categories[i].oId + ', ' + i + ', \'down\');" class="icon-move-down"></span>\
+                            </div>';
+                    }
+
+                    categoryData[i].categoryTitle = categories[i].categoryTitle;
+                    categoryData[i].categoryURI = categories[i].categoryURI;
+                    categoryData[i].categoryDesc = categories[i].categoryDescription;
+
+                    categoryData[i].expendRow = "<a href='javascript:void(0)' onclick=\"admin.categoryList.get('" +
+                            categories[i].oId + "')\">" + Label.updateLabel + "</a>\
+                            <a href='javascript:void(0)' onclick=\"admin.categoryList.del('" + categories[i].oId + "', '" +
+                            categories[i].categoryTitle + "')\">" + Label.removeLabel + "</a> ";
+
+                }
+                that.tablePagination.updateTablePagination(categoryData, pageNum, result.pagination);
+                $("#loadMsg").text("");
+            }
+        });
+    },
+    /*
+     * 添加分类
+     */
+    add: function() {
+        if (this.validate()) {
+            $("#loadMsg").text(Label.loadingLabel);
+            $("#tipMsg").text("");
+
+            var requestJSONObject = {
+                "categoryTitle": $("#categoryName").val(),
+                "categoryTags": $("#categoryTags").val(),
+                "categoryURI": $("#categoryURI").val(),
+                "categoryDescription": $("#categoryDesc").val()
+            };
+
+            $.ajax({
+                url: latkeConfig.servePath + "/console/category/",
+                type: "POST",
+                cache: false,
+                data: JSON.stringify(requestJSONObject),
+                success: function(result, textStatus) {
+                    $("#tipMsg").text(result.msg);
+                    if (!result.sc) {
+                        $("#loadMsg").text("");
+                        return;
+                    }
+
+                    $("#categoryName").val("");
+                    $("#categoryTags").val("");
+                    $("#categoryURI").val("");
+                    $("#categoryDesc").val("");
+                    if (admin.categoryList.pageInfo.currentCount === Label.PAGE_SIZE &&
+                            admin.categoryList.pageInfo.currentPage === admin.categoryList.pageInfo.pageCount) {
+                        admin.categoryList.pageInfo.pageCount++;
+                    }
+                    var hashList = window.location.hash.split("/");
+                    if (admin.categoryList.pageInfo.pageCount !== parseInt(hashList[hashList.length - 1])) {
+                        admin.setHashByPage(admin.categoryList.pageInfo.pageCount);
+                    }
+
+                    admin.categoryList.getList(admin.categoryList.pageInfo.pageCount);
+
+                    $("#loadMsg").text("");
+                }
+            });
+        }
+    },
+    /*
+     * 获取单个分类
+     * @id 用户 id
+     */
+    get: function(id) {
+        $("#loadMsg").text(Label.loadingLabel);
+        $("#tipMsg").text("");
+        $("#categoryUpdate").dialog("open");
+
+        $.ajax({
+            url: latkeConfig.servePath + "/console/category/" + id,
+            type: "GET",
+            cache: false,
+            success: function(result, textStatus) {
+                $("#tipMsg").text(result.msg);
+                if (!result.sc) {
+                    $("#loadMsg").text("");
+                    return;
+                }
+
+                $("#categoryNameUpdate").val(result.categoryTitle).data("oId", id);
+                $("#categoryURIUpdate").val(result.categoryURI);
+                $("#categoryDescUpdate").val(result.categoryDescription);
+                $("#categoryTagsUpdate").val(result.categoryTags);
+
+                $("#loadMsg").text("");
+            }
+        });
+    },
+    /*
+     * 更新分类
+     */
+    update: function() {
+        if (this.validate("Update")) {
+            $("#loadMsg").text(Label.loadingLabel);
+            $("#tipMsg").text("");
+
+            var requestJSONObject = {
+                "categoryTitle": $("#categoryNameUpdate").val(),
+                "oId": $("#categoryNameUpdate").data("oId"),
+                "categoryTags": $("#categoryTagsUpdate").val(),
+                "categoryURI": $("#categoryURIUpdate").val(),
+                "categoryDescription": $("#categoryDescUpdate").val()
+            };
+
+            $.ajax({
+                url: latkeConfig.servePath + "/console/category/",
+                type: "PUT",
+                cache: false,
+                data: JSON.stringify(requestJSONObject),
+                success: function(result, textStatus) {
+                    $("#categoryUpdate").dialog("close");
+                    $("#tipMsg").text(result.msg);
+                    if (!result.sc) {
+                        $("#loadMsg").text("");
+                        return;
+                    }
+
+                    admin.categoryList.getList(admin.categoryList.pageInfo.currentPage);
+
+                    $("#loadMsg").text("");
+                }
+            });
+        }
+    },
+    /*
+     * 删除分类
+     * @id 分类 id
+     * @categoryName 分类名称
+     */
+    del: function(id, categoryName) {
+        var isDelete = confirm(Label.confirmRemoveLabel + Label.categoryLabel + '"' + categoryName + '"?');
+        if (isDelete) {
+            $("#loadMsg").text(Label.loadingLabel);
+            $("#tipMsg").text("");
+
+            $.ajax({
+                url: latkeConfig.servePath + "/console/category/" + id,
+                type: "DELETE",
+                cache: false,
+                success: function(result, textStatus) {
+                    $("#tipMsg").text(result.msg);
+                    if (!result.sc) {
+                        $("#loadMsg").text("");
+                        return;
+                    }
+
+                    var pageNum = admin.categoryList.pageInfo.currentPage;
+                    if (admin.categoryList.pageInfo.currentCount === 1 && admin.categoryList.pageInfo.pageCount !== 1 &&
+                            admin.categoryList.pageInfo.currentPage === admin.categoryList.pageInfo.pageCount) {
+                        admin.categoryList.pageInfo.pageCount--;
+                        pageNum = admin.categoryList.pageInfo.pageCount;
+                    }
+                    var hashList = window.location.hash.split("/");
+                    if (pageNum !== parseInt(hashList[hashList.length - 1])) {
+                        admin.setHashByPage(pageNum);
+                    }
+                    admin.categoryList.getList(pageNum);
+
+                    $("#loadMsg").text("");
+                }
+            });
+        }
+    },
+    /*
+     * 验证字段
+     * @status 更新或者添加时进行验证
+     */
+    validate: function(status) {
+        if (!status) {
+            status = "";
+        }
+        var categoryName = $("#categoryName" + status).val().replace(/(^\s*)|(\s*$)/g, "");
+        if (2 > categoryName.length || categoryName.length > 32) {
+            $("#tipMsg").text(Label.categoryTooLongLabel);
+            $("#categoryName" + status).focus();
+        } else if ($.trim($("#categoryTags" + status).val()) === "") {
+            $("#tipMsg").text(Label.tagsEmptyLabel);
+            $("#categoryTags" + status).focus();
+        } else {
+            return true;
+        }
+        return false;
+    },
+    /*
+     * 调换顺序
+     */
+    changeOrder: function (id, order, status) {
+        $("#loadMsg").text(Label.loadingLabel);
+        $("#tipMsg").text("");
+
+        var requestJSONObject = {
+            "oId": id.toString(),
+            "direction": status
+        };
+
+        $.ajax({
+            url: latkeConfig.servePath + "/console/category/order/",
+            type: "PUT",
+            cache: false,
+            data: JSON.stringify(requestJSONObject),
+            success: function(result, textStatus){
+                $("#tipMsg").text(result.msg);
+
+                // Refershes the link list
+                admin.categoryList.getList(admin.categoryList.pageInfo.currentPage);
+
+                $("#loadMsg").text("");
+            }
+        });
+    }
+};
+
+/*
+ * 注册到 admin 进行管理 
+ */
+admin.register["category-list"] = {
+    "obj": admin.categoryList,
+    "init": admin.categoryList.init,
+    "refresh": admin.categoryList.getList
+}/*
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3907,7 +4404,7 @@ admin.register["comment-list"] =  {
     "init": admin.commentList.init,
     "refresh": admin.commentList.getList
 }/*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4041,7 +4538,7 @@ admin.plugin = {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4079,7 +4576,7 @@ admin.register.main =  {
     }
 };
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4098,14 +4595,14 @@ admin.register.main =  {
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.4, May 28, 2013
+ * @version 1.0.1.4, Feb 18, 2017
  */
 
 /* about 相关操作 */
 admin.about = {
     init: function() {
         $.ajax({
-            url: window.location.protocol + '://' + "rhythm.b3log.org/version/solo/latest/" + Label.version,
+            url: "https://rhythm.b3log.org/version/solo/latest/" + Label.version,
             type: "GET",
             cache: false,
             dataType: "jsonp",
