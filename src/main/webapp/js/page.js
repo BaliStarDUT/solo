@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.2.3.5, Nov 2, 2015
+ * @version 1.3.0.0, May 21, 2017
  */
 var Page = function (tips) {
     this.currentCommentId = "";
@@ -38,7 +38,7 @@ $.extend(Page.prototype, {
         $("#emotions" + name + " span").click(function () {
             var $comment = $("#comment" + name);
             var endPosition = _it._getCursorEndPosition($comment[0]);
-            var key = "[" + this.className + "]",
+            var key = this.title + ' ',
                     textValue = $comment[0].value;
             textValue = textValue.substring(0, endPosition) + key + textValue.substring(endPosition, textValue.length);
             $("#comment" + name).val(textValue);
@@ -46,10 +46,10 @@ $.extend(Page.prototype, {
                 endPosition -= textValue.split('\n').length - 1;
                 var oR = $comment[0].createTextRange();
                 oR.collapse(true);
-                oR.moveStart('character', endPosition + 6);
+                oR.moveStart('character', endPosition + key.length);
                 oR.select();
             } else {
-                $comment[0].setSelectionRange(endPosition + 6, endPosition + 6);
+                $comment[0].setSelectionRange(endPosition + key.length, endPosition + key.length);
             }
         });
     },
@@ -368,16 +368,17 @@ $.extend(Page.prototype, {
         // otherelse use highlight
         // load css
         if (document.createStyleSheet) {
-            document.createStyleSheet(latkeConfig.staticServePath + "/js/lib/highlight/styles/default.css");
+            document.createStyleSheet(latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/styles/default.css");
         } else {
-            $("head").append($("<link rel='stylesheet' href='" + latkeConfig.staticServePath + "/js/lib/highlight/styles/github.css'>"));
+            $("head").append($("<link rel='stylesheet' href='" + latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/styles/github.css'>"));
         }
         $.ajax({
-            url: latkeConfig.staticServePath + "/js/lib/highlight/highlight.pack.js",
+            url: latkeConfig.staticServePath + "/js/lib/highlight.js-9.6.0/highlight.pack.js",
             dataType: "script",
             cache: true,
             success: function () {
-                hljs.initHighlightingOnLoad();
+                hljs.initHighlighting.called = false;
+                hljs.initHighlighting();
             }
         });
 
@@ -499,7 +500,7 @@ $.extend(Page.prototype, {
         var tips = this.tips;
         try {
             $.ajax({
-                url: "http://rhythm.b3log.org:80/get-articles-by-tags.do?tags=" + tags
+                url: "https://rhythm.b3log.org/get-articles-by-tags.do?tags=" + tags
                         + "&blogHost=" + tips.blogHost + "&paginationPageSize=" + tips.externalRelevantArticlesDisplayCount,
                 type: "GET",
                 cache: true,
@@ -583,10 +584,11 @@ $.extend(Page.prototype, {
                 contentType: "application/json",
                 data: JSON.stringify(requestJSONObject),
                 success: function (result) {
+                    $("#submitCommentButton" + state).removeAttr("disabled");
                     if (!result.sc) {
                         $("#commentErrorTip" + state).html(result.msg);
-                        $("#comment" + state).val("").focus();
-                        $("#submitCommentButton" + state).removeAttr("disabled");
+                        $("#commentValidate" + state).val('');
+                        $("#captcha" + state).click();
                         if (!Util.isLoggedIn()) {
                             $("#captcha" + state).attr("src", latkeConfig.servePath + "/captcha.do?code=" + Math.random());
                         }
@@ -613,8 +615,7 @@ $.extend(Page.prototype, {
                         result.userName = Util.getUserName();
                     }
 
-                    that.addCommentAjax(addComment(result, state), state);
-                    $("#submitCommentButton" + state).removeAttr("disabled");
+                    that.addCommentAjax(Util.replaceEmString(result.cmtTpl), state);
                 }
             });
         }

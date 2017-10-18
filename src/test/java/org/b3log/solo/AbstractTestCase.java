@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,28 @@
  */
 package org.b3log.solo;
 
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.Locale;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.LatkeBeanManager;
 import org.b3log.latke.ioc.Lifecycle;
 import org.b3log.latke.ioc.config.Discoverer;
 import org.b3log.latke.repository.jdbc.util.Connections;
 import org.b3log.latke.repository.jdbc.util.JdbcRepositories;
-import org.b3log.solo.repository.ArchiveDateArticleRepository;
-import org.b3log.solo.repository.ArchiveDateRepository;
-import org.b3log.solo.repository.ArticleRepository;
-import org.b3log.solo.repository.CommentRepository;
-import org.b3log.solo.repository.LinkRepository;
-import org.b3log.solo.repository.OptionRepository;
-import org.b3log.solo.repository.PageRepository;
-import org.b3log.solo.repository.PluginRepository;
-import org.b3log.solo.repository.StatisticRepository;
-import org.b3log.solo.repository.TagArticleRepository;
-import org.b3log.solo.repository.TagRepository;
-import org.b3log.solo.repository.UserRepository;
-import org.b3log.solo.repository.impl.ArchiveDateArticleRepositoryImpl;
-import org.b3log.solo.repository.impl.ArchiveDateRepositoryImpl;
-import org.b3log.solo.repository.impl.ArticleRepositoryImpl;
-import org.b3log.solo.repository.impl.CommentRepositoryImpl;
-import org.b3log.solo.repository.impl.LinkRepositoryImpl;
-import org.b3log.solo.repository.impl.OptionRepositoryImpl;
-import org.b3log.solo.repository.impl.PageRepositoryImpl;
-import org.b3log.solo.repository.impl.PluginRepositoryImpl;
-import org.b3log.solo.repository.impl.StatisticRepositoryImpl;
-import org.b3log.solo.repository.impl.TagArticleRepositoryImpl;
-import org.b3log.solo.repository.impl.TagRepositoryImpl;
-import org.b3log.solo.repository.impl.UserRepositoryImpl;
+import org.b3log.solo.api.metaweblog.MetaWeblogAPI;
+import org.b3log.solo.repository.*;
+import org.b3log.solo.repository.impl.*;
 import org.b3log.solo.service.*;
 import org.testng.annotations.BeforeClass;
+
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Abstract test case.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 2.0.0.9, Jan 8, 2016
+ * @version 2.2.0.9, Apr 12, 2017
  * @see #beforeClass()
- * @see #afterClass()
  */
 public abstract class AbstractTestCase {
 
@@ -68,11 +47,12 @@ public abstract class AbstractTestCase {
 
     /**
      * Before class.
-     *
+     * <p>
      * <ol>
      * <li>Initializes Latke runtime</li>
      * <li>Instantiates repositories</li>
      * </ol>
+     * </p>
      *
      * @throws Exception exception
      */
@@ -88,8 +68,26 @@ public abstract class AbstractTestCase {
         final Connection connection = Connections.getConnection();
         connection.createStatement().execute("DROP ALL OBJECTS");
         connection.close();
-        JdbcRepositories.initAllTables();
 
+        JdbcRepositories.initAllTables();
+    }
+
+    /**
+     * Gets category-tag repository.
+     *
+     * @return category-tag repository
+     */
+    public CategoryTagRepository getCategoryTagRepository() {
+        return beanManager.getReference(CategoryTagRepositoryImpl.class);
+    }
+
+    /**
+     * Gets category repository.
+     *
+     * @return category repository
+     */
+    public CategoryRepository getCategoryRepository() {
+        return beanManager.getReference(CategoryRepositoryImpl.class);
     }
 
     /**
@@ -198,6 +196,24 @@ public abstract class AbstractTestCase {
      */
     public OptionRepository getOptionRepository() {
         return beanManager.getReference(OptionRepositoryImpl.class);
+    }
+
+    /**
+     * Gets category query service.
+     *
+     * @return category query service
+     */
+    public CategoryQueryService getCategoryQueryService() {
+        return beanManager.getReference(CategoryQueryService.class);
+    }
+
+    /**
+     * Gets category management service.
+     *
+     * @return category management service
+     */
+    public CategoryMgmtService getCategoryMgmtService() {
+        return beanManager.getReference(CategoryMgmtService.class);
     }
 
     /**
@@ -360,5 +376,10 @@ public abstract class AbstractTestCase {
      */
     public OptionQueryService getOptionQueryService() {
         return beanManager.getReference(OptionQueryService.class);
+    }
+
+
+    public MetaWeblogAPI getMetaWeblogAPI() {
+        return beanManager.getReference(MetaWeblogAPI.class);
     }
 }

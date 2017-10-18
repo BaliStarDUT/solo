@@ -1018,10 +1018,11 @@
         'Cmd-B': toggleBold,
         'Cmd-I': toggleItalic,
         'Cmd-K': drawLink,
-        // 'Cmd-Alt-I': drawImage,
-        "Cmd-'": toggleBlockquote,
-        'Cmd-Alt-L': toggleOrderedList,
-        'Cmd-L': toggleUnOrderedList
+        "Cmd-E": toggleBlockquote,
+        'Shift-Cmd-L': toggleOrderedList,
+        'Cmd-L': toggleUnOrderedList,
+        'Cmd-D': togglePreview,
+        'Shift-Cmd-A': toggleFullScreen
     };
 
 
@@ -1041,24 +1042,35 @@
     /**
      * Create icon element for toolbar.
      */
-    function createIcon(name, options) {
-        options = options || {};
-        if (name === 'image') {
+    function createIcon(options) {
+        if (options.name === 'image') {
             return $(options.html)[0];
         }
-        var el = document.createElement('a');
-
-        var shortcut = options.shortcut || shortcuts[name];
-        if (shortcut) {
-            shortcut = fixShortcut(shortcut);
-            el.title = shortcut;
-            el.title = el.title.replace('Cmd', '⌘');
-            if (isMac) {
-                el.title = el.title.replace('Alt', '⌥');
-            }
+        var ariaLabels = {
+            bold: Label.addBoldLabel + ' <ctrl+b>',
+            italic: Label.addItalicLabel + ' <ctrl+i>',
+            quote: Label.insertQuoteLabel + ' <ctrl+e>',
+            'unordered-list': Label.addBulletedLabel + ' <ctrl+l>',
+            'ordered-list': Label.addNumberedListLabel + ' <shift+ctrl+l>',
+            'link': Label.addLinkLabel + ' <ctrl+k>',
+            redo: Label.redoLabel + ' <shift+ctrl+z>',
+            undo: Label.undoLabel + ' <ctrl+z>',
+            preview: Label.previewLabel + ' <ctrl+d>',
+            question: Label.helpLabel,
+            fullscreen: Label.fullscreenLabel + ' <shift+ctrl+a>'
         }
 
-        el.className = options.className || 'icon-' + name;
+
+        var el = document.createElement('a');
+
+        var label = ariaLabels[options.name]
+        if (isMac) {
+            label = label.replace('ctrl', '⌘').replace('shift', '⇧');
+        }
+
+        el.className = 'tooltipped tooltipped-n';
+        el.setAttribute('aria-label', label)
+        el.innerHTML = "<span class='icon-" + options.name + "'></span>"
         return el;
     }
 
@@ -1107,8 +1119,60 @@
      * Toggle full screen of the editor.
      */
     function toggleFullScreen(editor) {
-        editor.codemirror.setOption("fullScreen", !editor.codemirror.getOption("fullScreen"));
-        editor.codemirror.focus();
+        var cm = editor.codemirror,
+        wrap = editor.codemirror.getWrapperElement();
+        
+        if ('icon-fullscreen' === editor.toolbar.fullscreen.children[0].className) {
+            editor.toolbar.fullscreen.children[0].className = 'icon-contract';
+            editor.toolbar.preview.style.display = 'none';
+            if (editor.toolbar.preview.className.indexOf('active') > -1) {
+                editor.toolbar.preview.click();
+            }
+
+            $(editor.element.parentElement).css({
+                'position': 'fixed',
+                'top': '0',
+                'z-index': '90',
+                'left': '0',
+                'right': '0'
+            });
+
+            cm.state.fullScreenRestore = {scrollTop: window.pageYOffset, scrollLeft: window.pageXOffset,
+                                          width: wrap.style.width, height: wrap.style.height};
+            wrap.style.width = "50%";
+            wrap.style.height = ($(window).height() - $('.editor-toolbar').outerHeight()) + 'px';
+            cm.refresh();
+            
+            $.ajax({
+                url: editor.options.htmlURL,
+                type: "POST",
+                cache: false,
+                data: {
+                    markdownText: cm.getValue()
+                },
+                success: function (result, textStatus) {
+                    $(editor.element.parentElement).prepend('<div class="CodeMirror-preview content-reset" style="height:' 
+                + ($(window).height() - $('.editor-toolbar').outerHeight()) + 'px">' + result.html + '</div>');
+                    hljs.initHighlighting.called = false;
+                    hljs.initHighlighting();
+                }
+            });
+
+            return false;
+        }
+
+        editor.toolbar.fullscreen.children[0].className = 'icon-fullscreen';
+        editor.toolbar.preview.style.display = 'inline';
+        $(editor.element.parentElement).css({
+            'position': 'inherit'
+        });
+
+        $(editor.element.parentElement).find('.CodeMirror-preview').remove();    
+
+        var info = cm.state.fullScreenRestore;
+        wrap.style.width = info.width; 
+        wrap.style.height = info.height;
+        cm.refresh();
     }
 
 
@@ -1279,10 +1343,12 @@
         var text = cm.getValue();
 
         $.ajax({
-            url: latkeConfig.servePath + "/console/markdown/2html",
+            url: editor.options.htmlURL,
             type: "POST",
             cache: false,
-            data: JSON.stringify({markdownText: text}),
+            data: {
+                markdownText: text
+            },
             success: function (result, textStatus) {
                 preview.innerHTML = result.html;
                 hljs.initHighlighting.called = false;
@@ -1488,9 +1554,7 @@
         for (var i = 0; i < items.length; i++) {
             (function (item) {
                 var el;
-                if (item.name) {
-                    el = createIcon(item.name, item);
-                } else if (item === '|') {
+                if (item === '|') {
                     el = createSep();
                 } else {
                     el = createIcon(item);
@@ -1648,5 +1712,5 @@
         toggleFullScreen(this);
     };
 
-    global.CodeMirrorEditor = Editor;
+    global.Editor = Editor;
 })(this);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, b3log.org & hacpai.com
+ * Copyright (c) 2010-2017, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.b3log.solo.event.plugin;
 
 
-import java.util.List;
 import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventException;
@@ -30,6 +29,8 @@ import org.b3log.latke.repository.Transaction;
 import org.b3log.solo.repository.PluginRepository;
 import org.b3log.solo.repository.impl.PluginRepositoryImpl;
 import org.b3log.solo.service.PluginMgmtService;
+
+import java.util.List;
 
 
 /**
@@ -51,7 +52,7 @@ public final class PluginRefresher extends AbstractEventListener<List<AbstractPl
         final List<AbstractPlugin> plugins = event.getData();
 
         LOGGER.log(Level.DEBUG, "Processing an event[type={0}, data={1}] in listener[className={2}]",
-            new Object[] {event.getType(), plugins, PluginRefresher.class.getName()});
+                event.getType(), plugins, PluginRefresher.class.getName());
 
         final LatkeBeanManager beanManager = Lifecycle.getBeanManager();
         final PluginRepository pluginRepository = beanManager.getReference(PluginRepositoryImpl.class);
