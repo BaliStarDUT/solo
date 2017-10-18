@@ -9,25 +9,28 @@
                 <p>${article.articleAbstract}</p>
             </div>
             <div class="meta">
-                <span class="tooltipped tooltipped-n" aria-label="${createDateLabel}">
+                <span class="published" aria-label="${createDateLabel}">
                     <i class="icon-date"></i>
                     <time>
                         ${article.articleCreateDate?string("yyyy-MM-dd")}
                     </time>
                 </span>
 
-                <span class="tooltipped tooltipped-n" aria-label="${commentCountLabel}">
+                <span class="published" aria-label="${commentCountLabel}">
                     <i class="icon-comments"></i>
                     <a href="${servePath}${article.articlePermalink}#comments">
                         ${article.articleCommentCount} ${commentLabel}</a>
                 </span>
 
-                <span class="tooltipped tooltipped-n" aria-label="${viewCountLabel}">
+                <span class="published" aria-label="${viewCountLabel}">
                     <i class="icon-views"></i>
                     ${article.articleViewCount} ${viewLabel}
                 </span>
             </div>
         </header>
+        <a href="#" class="image featured">
+            <img src="images/pic01.jpg" alt>
+        </a>
         <div >
             ${article.articleAbstract}
         </div>
@@ -50,26 +53,12 @@
     </article>
     </#list>
 
+    <!-- Pagination -->
 
     <#if 0 != paginationPageCount>
-        <div class="fn-clear">
-            <nav class="pagination fn-right">
-                <#if 1 != paginationPageNums?first>
-                <a href="${servePath}${path}/${paginationPreviousPageNum}" class="page-number">&laquo;</a>
-                    <a class="page-number" href="${servePath}${path}/1">1</a> <span class="page-number">...</span>
-                </#if>
-                <#list paginationPageNums as paginationPageNum>
-                <#if paginationPageNum == paginationCurrentPageNum>
-                <span class="page-number current">${paginationPageNum}</span>
-                <#else>
-                <a class="page-number" href="${servePath}${path}/${paginationPageNum}">${paginationPageNum}</a>
-                </#if>
-                </#list>
-                <#if paginationPageNums?last != paginationPageCount> <span class="page-number">...</span>
-                <a href="${servePath}${path}/${paginationPageCount}" class="page-number">${paginationPageCount}</a>
-                <a href="${servePath}${path}/${paginationNextPageNum}" class="page-number">&raquo;</a>
-                </#if>
-            </nav>
-        </div>
+        <ul class="actions pagination">
+            <li><a href="" class="disabled button big previous">Previous Page</a></li>
+            <li><a href="#" class="button big next">Next Page</a></li>
+        </ul>
     </#if>
 </div>

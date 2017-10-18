@@ -18,19 +18,7 @@
                 <#include "article-list.ftl">
             <div>
             <#include "side.ftl">
-            <!--<section id="sidebar">
-                <section id="intro">
-                </section>
-            </section> -->
         </div>
-        <!--<div class="wrapper">
-            <div class="main-wrap">
-                <main>
-                    <#include "article-list.ftl">
-                </main>
-                <#include "side.ftl">
-            </div>
-        </div>-->
-        <#include "footer.ftl">
+        <!--<#include "footer.ftl">-->
     </body>
 </html>

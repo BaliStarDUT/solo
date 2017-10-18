@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Description: Solo POM.
-    Version: 3.17.1.43, Jul 10, 2017
+    Version: 3.14.1.27, Sep 24, 2016
     Author: <a href="http://88250.b3log.org">Liang Ding</a>
     Author: <a href="http://www.annpeter.cn">Ann Peter</a>
-    Author: <a href="http://vanessa.b3log.org">Vanessa</a>
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -14,9 +13,9 @@
     <artifactId>solo</artifactId>
     <packaging>war</packaging>
     <name>Solo</name>
-    <version>2.2.0</version>
+    <version>1.6.0</version>
     <description>
-        A blogging system written in Java, feel free to create your or your team own blog. 一个用 Java 实现的博客系统，为你或你的团队创建个博客吧！
+        A blogging system written in Java, feel free to create your or your team own blog. 一个用 Java 实现的博客系统，为你或你的团队创建个博客吧。
     </description>
     <inceptionYear>2010</inceptionYear>
 
@@ -59,7 +58,32 @@
             <organizationUrl>http://b3log.org</organizationUrl>
             <timezone>+8</timezone>
         </developer>
-
+        
+        <developer>
+            <id>wmainlove@gmail.com</id>
+            <name>Liceng Yao</name>
+            <email>wmainlove@gmail.com</email>
+            <url>http://love.b3log.org</url>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>B3log</organization>
+            <organizationUrl>http://b3log.org</organizationUrl>
+            <timezone>+8</timezone>
+        </developer>
+        
+        <developer>
+            <id>dongxu.wang@acm.org</id>
+            <name>Dongxu Wang</name>
+            <email>dongxu.wang@acm.org</email>
+            <url>http://dx.b3log.org</url>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>B3log</organization>
+            <organizationUrl>http://b3log.org</organizationUrl>
+            <timezone>+8</timezone>
+        </developer>
     </developers>
 
     <issueManagement>
@@ -67,34 +91,40 @@
         <url>https://github.com/b3log/solo/issues</url>
     </issueManagement>
 
+    <mailingLists>
+        <mailingList>
+            <name>b3log-solo-dev</name>
+            <archive>https://groups.google.com/group/b3log-solo-dev</archive>
+            <post>b3log-solo-dev@googlegroups.com</post>
+        </mailingList>
+    </mailingLists>
+
     <scm>
         <url>https://github.com/b3log/solo</url>
     </scm>
-
+        
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <org.b3log.latke.version>2.3.13</org.b3log.latke.version>
+        
+        <org.b3log.latke.version>2.3.3</org.b3log.latke.version>
 
         <servlet.version>3.1.0</servlet.version>
         <slf4j.version>1.7.5</slf4j.version>
         <jsoup.version>1.9.1</jsoup.version>
-        <flexmark.version>0.20.0</flexmark.version>
+        <pegdown.version>1.6.0</pegdown.version>
         <qiniu.version>7.0.4.1</qiniu.version>
         <jetty.version>9.2.7.v20150116</jetty.version>
         <commons-cli.version>1.3.1</commons-cli.version>
-        <emoji-java.version>3.2.0</emoji-java.version>
+        <emoji-java.version>3.0.0</emoji-java.version>
         <jodd.version>3.6.6</jodd.version>
-        <snakeyaml.version>1.18</snakeyaml.version>
-
+        
         <!-- maven plugin -->
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
         <maven-license-plugin.version>1.9.0</maven-license-plugin.version>
-        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
-        <maven-min-plugin.version>1.0.3</maven-min-plugin.version>
+        <coveralls-maven-plugin.version>4.0.0</coveralls-maven-plugin.version>
+        <maven-min-plugin.version>1.0.0</maven-min-plugin.version>
         <!-- Unit Test -->
         <testng.version>6.1.1</testng.version>
         <!-- JDBC Drivers -->
@@ -107,25 +137,25 @@
             <artifactId>latke</artifactId>
             <version>${org.b3log.latke.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${servlet.version}</version>
         </dependency>
 
-        <dependency>
+        <dependency>         
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql-connector-java.version}</version>
         </dependency>
-
+            
         <dependency>
             <groupId>org.b3log</groupId>
             <artifactId>latke-repository-mysql</artifactId>
             <version>${org.b3log.latke.version}</version>
         </dependency>
-
+            
         <dependency>
             <groupId>org.b3log</groupId>
             <artifactId>latke-repository-h2</artifactId>
@@ -150,27 +180,13 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
+            
         <dependency>
-            <groupId>com.vladsch.flexmark</groupId>
-            <artifactId>flexmark-all</artifactId>
-            <version>${flexmark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vladsch.flexmark</groupId>
-                    <artifactId>flexmark-pdf-converter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.vladsch.flexmark</groupId>
-                    <artifactId>flexmark-youtrack-converter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.vladsch.flexmark</groupId>
-                    <artifactId>flexmark-jira-converter</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.pegdown</groupId>
+            <artifactId>pegdown</artifactId>
+            <version>${pegdown.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>com.vdurmont</groupId>
             <artifactId>emoji-java</artifactId>
@@ -182,46 +198,37 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+            
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
             <version>${qiniu.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons-cli.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.jodd</groupId>
             <artifactId>jodd-http</artifactId>
             <version>${jodd.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
-
+    
     <build>
         <resources>
             <resource>
@@ -231,7 +238,7 @@
                 </excludes>
             </resource>
         </resources>
-
+        
         <plugins>
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
@@ -239,31 +246,9 @@
                 <version>${coveralls-maven-plugin.version}</version>
                 <configuration>
                     <repoToken>PmmgdTzVuYQAsiOHNZ67bNDuqwDRSKvlm</repoToken>
-                    <formats>
-                        <format>xml</format>
-                    </formats>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>${cobertura-maven-plugin.version}</version>
-                <configuration>
-                    <check>true</check>
-                    <format>xml</format>
-                    <aggregate>true</aggregate>
-                    <instrumentation>
-                        <excludes>
-                            <exclude>org/b3log/solo/model/**</exclude>
-                            <exclude>org/b3log/solo/dev/**</exclude>
-                            <exclude>org/b3log/solo/SoloServletListener.class</exclude>
-                            <exclude>org/b3log/solo/Starter.class</exclude>
-                        </excludes>
-                    </instrumentation>
-                </configuration>
-            </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -272,18 +257,18 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -292,7 +277,7 @@
                     <skipTests>false</skipTests>
                 </configuration>
             </plugin>
-
+            
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -306,7 +291,6 @@
                     <includes>
                         <include>**/src/*/java/**/*.java</include>
                         <include>**/src/*/webapp/js/*.js</include>
-                        <include>**/src/*/webapp/js/marked/*.js</include>
                         <include>**/src/*/webapp/css/*.css</include>
                         <include>**/src/*/webapp/skins/*/js/*.js</include>
                         <include>**/src/*/webapp/skins/*/css/*.css</include>
@@ -330,7 +314,7 @@
                     </mapping>
                     <useDefaultMapping>true</useDefaultMapping>
                     <properties>
-                        <year>2010-2017</year>
+                        <year>2010-2016</year>
                         <devTeam>b3log.org &amp; hacpai.com</devTeam>
                     </properties>
                     <encoding>UTF-8</encoding>
@@ -346,7 +330,7 @@
                     -->
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.b3log</groupId>
                 <artifactId>maven-min-plugin</artifactId>
@@ -373,7 +357,6 @@
                         <param>preference.js</param>
                         <param>pluginList.js</param>
                         <param>userList.js</param>
-                        <param>categoryList.js</param>
                         <param>commentList.js</param>
                         <param>plugin.js</param>
                         <param>main.js</param>
@@ -397,7 +380,7 @@
                     -->
                 </executions>
             </plugin>
-
+            
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -416,35 +399,8 @@
             </plugin>
 
         </plugins>
-
+        
         <finalName>solo</finalName>
     </build>
-
-    <profiles>
-        <profile>
-            <id>ci</id>
-        </profile>
-
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>aliyun</id>
-                    <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-                </repository>
-            </repositories>
-
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>aliyun</id>
-                    <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-
 </project>
 
