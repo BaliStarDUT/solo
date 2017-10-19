@@ -8,23 +8,28 @@
                 <p>${article.articleAbstract}</p>
             </div>
             <div class="meta">
-                <span class="published" aria-label="${createDateLabel}">
-                    <i class="icon-date"></i>
+                <a href="#" class="author">
+                    <span class="name">${adminUser.userName}</span>
+                    <img src="${adminUser.userAvatar}" aria-label="${adminUser.userName}" />
+                </a>
+
+                <div class="published" label="${createDateLabel}">
+                    <i class="fa fa-calendar"></i>
                     <time>
                         ${article.articleCreateDate?string("yyyy-MM-dd")}
                     </time>
-                </span>
-
-                <span class="published" aria-label="${commentCountLabel}">
-                    <i class="icon-comments"></i>
+                </div>
+                <span class="published" label="${commentCountLabel}">
+                    <i class="fa fa-comments"></i>
                     <a href="${servePath}${article.articlePermalink}#comments">
                         ${article.articleCommentCount} ${commentLabel}</a>
                 </span>
 
-                <span class="published" aria-label="${viewCountLabel}">
-                    <i class="icon-views"></i>
+                <span class="published" label="${viewCountLabel}">
+                    <i class="fa fa-eye"></i>
                     ${article.articleViewCount} ${viewLabel}
                 </span>
+
             </div>
         </header>
         <a href="#" class="image featured">

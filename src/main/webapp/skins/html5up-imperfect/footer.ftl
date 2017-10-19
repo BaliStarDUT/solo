@@ -1,4 +1,4 @@
-<footer class="footer fn-clear">
+<!--<footer class="footer fn-clear">
     &copy; ${year}
     ${footerContent}
     <a href="${servePath}">${blogTitle}</a>  &nbsp;   • &nbsp;
@@ -8,11 +8,20 @@
     <span class="ft-warn">&heartsuit;</span>
     Theme by <a href="https://github.com/9IPHP/9IPHP" target="_blank">9IPHP</a> & <a href="http://vanessa.b3log.org" target="_blank">Vanessa</a>
 </footer>
+-->
 <div class="icon-up" onclick="Util.goTop()"></div>
+
+<!-- Scripts -->
 
 <script type="text/javascript" src="${staticServePath}/js/lib/jquery/jquery.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="${staticServePath}/js/common${miniPostfix}.js?${staticResourceVersion}" charset="utf-8"></script>
 <script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/common${miniPostfix}.js?${staticResourceVersion}" charset="utf-8"></script>
+
+<script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/skel.min.js"></script>
+<script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/util.js"></script>
+<!--[if lte IE 8]><script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/ie/respond.min.js"></script><![endif]-->
+<script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/main.js"></script>
+
 <script type="text/javascript">
     var latkeConfig = {
         "servePath": "${servePath}",

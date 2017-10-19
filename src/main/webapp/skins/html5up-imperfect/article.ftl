@@ -16,11 +16,12 @@
     </head>
     <body>
         <#include "header.ftl">
-        <div class="wrapper">
-            <div class="main-wrap">
+        <div id="wrapper">
+            <div id="main">
                 <main>
                     <article class="post">
                         <header>
+                          <div class="title">
                             <h1>
                                 <a rel="bookmark" href="${servePath}${article.articlePermalink}">
                                     ${article.articleTitle}
@@ -36,21 +37,20 @@
                                     </sup>
                                 </#if>
                             </h1>
+                          </div>
                             <div class="meta">
-                                <span class="tooltipped tooltipped-n" aria-label="${createDateLabel}">
+                                <span class="published" aria-label="${createDateLabel}">
                                     <i class="icon-date"></i>
                                     <time>
                                         ${article.articleCreateDate?string("yyyy-MM-dd")}
                                     </time>
                                 </span>
-                                                &nbsp; | &nbsp;
-                                                <span class="tooltipped tooltipped-n" aria-label="${commentCountLabel}">
+                                 <span class="published" aria-label="${commentCountLabel}">
                                     <i class="icon-comments"></i>
                                     <a href="${servePath}${article.articlePermalink}#comments">
                                         ${article.articleCommentCount} ${commentLabel}</a>
                                 </span>
-                                                &nbsp; | &nbsp;
-                                                <span class="tooltipped tooltipped-n" aria-label="${viewCountLabel}">
+                                <span class="published" aria-label="${viewCountLabel}">
                                     <i class="icon-views"></i>
                                     ${article.articleViewCount} ${viewLabel}
                                 </span>

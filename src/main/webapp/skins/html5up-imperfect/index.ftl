@@ -19,6 +19,6 @@
             </div>
             <#include "side.ftl">
         </div>
-        <!--<#include "footer.ftl">-->
+        <#include "footer.ftl">
     </body>
 </html>
