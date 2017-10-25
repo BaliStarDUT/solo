@@ -2364,8 +2364,8 @@
 
 			ul.posts li {
 				border-top: dotted 1px rgba(160, 160, 160, 0.3);
-				margin: 1.5em 0 0 0;
-				padding: 1.5em 0 0 0;
+				margin: 1.0em 0 0 0;
+				padding: 1.0em 0 0 0;
 			}
 
 				ul.posts li:first-child {
@@ -2685,6 +2685,10 @@
 							color: rgba(160, 160, 160, 0.3);
 							margin-right: 0.75em;
 						}
+				    .post > footer .stats li .tag {
+                        font-size: 1.3em;
+                        font-weight: 400;
+                    }
 
 		@media screen and (max-width: 980px) {
 
@@ -3154,7 +3158,7 @@
 		@media screen and (max-width: 1680px) {
 
 			#wrapper {
-				padding: 3em;
+				padding: 2em;
 			}
 
 		}

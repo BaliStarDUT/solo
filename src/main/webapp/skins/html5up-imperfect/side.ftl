@@ -42,14 +42,15 @@
         </div>
     </section>
     </#if>
+
     <#if 0 != mostViewCountArticles?size>
     <h2>${mostViewCountArticlesLabel}</h2>
-
     <section>
-        <div class="mini-posts">
+        <ul class="posts">
             <#list mostViewCountArticles as article>
                 <!-- Mini Post -->
-                <article class="mini-post">
+              <li>
+                <article>
                     <header>
                         <h3>
                             <a rel="nofollow" aria-label="${article.articleCommentCount} ${commentLabel}" href="${servePath}${article.articlePermalink}">
@@ -58,12 +59,12 @@
                         <time class="published" datetime="2015-10-20">
                             ${article.articleCreateDate?string("yyyy-MM-dd")}
                         </time>
-                        <a href="#" class="author"><img src="/skins/${skinDirName}/images/logo.jpg" alt="" /></a>
                     </header>
-                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/pic04.jpg" alt="" /></a>
+                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/logo.jpg" alt="" /></a>
                 </article>
+              </li>
              </#list>
-        </div>
+        </ul>
     </section>
     </#if>
 <!-- Footer -->

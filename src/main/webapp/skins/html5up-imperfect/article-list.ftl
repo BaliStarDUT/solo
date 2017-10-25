@@ -5,7 +5,6 @@
                 <h2><a rel="bookmark" href="${servePath}${article.articlePermalink}">
                     ${article.articleTitle}
                 </a></h2>
-                <p>${article.articleAbstract}</p>
             </div>
             <div class="meta">
                 <a href="#" class="author">
@@ -44,14 +43,13 @@
                 <li><a href="${servePath}${article.articlePermalink}#more" rel="contents" class="button big">${readLabel}</a></li>
             </ul>
             <ul class="stats">
-                <li><a href="#">General</a></li>
-                <li><a href="#" class="icon fa-heart">28</a></li>
-                <li><a href="#" class="icon fa-comment">128</a></li>
                 <#list article.articleTags?split(",") as articleTag>
                     <li><a class="tag" rel="tag" href="${servePath}/tags/${articleTag?url('UTF-8')}">
                         ${articleTag}</a>
                     </li>
                 </#list>
+                <li><a href="#" class="icon fa-heart">0</a></li>
+                <li><a href="#" class="icon fa-comment">0</a></li>
             </ul>
         </footer>
     </article>

@@ -66,38 +66,30 @@
                             </#if>
                         </div>
 
-                        <footer class="tags">
-                            <#list article.articleTags?split(",") as articleTag>
-                                <a class="tag" rel="tag" href="${servePath}/tags/${articleTag?url('UTF-8')}">
-                                    ${articleTag}</a>
-                            </#list>
-
-                            <#-- div class="copyright">
-                                ${articleCP1Label}
-                                <a rel="bookmark" href="${servePath}${article.articlePermalink}">
-                                    ${article.articleTitle}
-                                </a> -
-                                <a href="${servePath}">
-                                    ${blogTitle}
-                                </a>
-                            </div -->
-
-                            <div class="rel fn-clear">
-                                <#if previousArticlePermalink??>
-                                    <a href="${servePath}${previousArticlePermalink}" rel="prev"
-                                       class="fn-left tooltipped tooltipped-n"
-                                       aria-label="${previousArticleTitle}">
-                                        ${previousArticleLabel}
-                                    </a>
-                                </#if>
-                                <#if nextArticlePermalink??>
-                                    <a href="${servePath}${nextArticlePermalink}" rel="next"
-                                       class="fn-right tooltipped tooltipped-n"
-                                       aria-label="${nextArticleTitle}">
+                        <footer >
+                           <#if previousArticlePermalink??>
+                                <ul class="actions">
+                                    <li><a href="${servePath}${previousArticlePermalink}" rel="prev" class="button big"
+                                        aria-label="${previousArticleTitle}">${previousArticleLabel}
+                                        </a></li>
+                                </ul>
+                            </#if>
+                            <#if nextArticlePermalink??>
+                                <ul class="actions">
+                                    <li><a href="${servePath}${nextArticlePermalink}" rel="next" class="button big"
+                                        aria-label="${nextArticleTitle}">
                                         ${nextArticleLabel}
-                                    </a>
-                                </#if>
-                            </div>
+                                      </a></li>
+                                </ul>
+                            </#if>
+                           <ul class="stats">
+                               <#list article.articleTags?split(",") as articleTag>
+                                   <li><a class="tag" rel="tag" href="${servePath}/tags/${articleTag?url('UTF-8')}">
+                                       ${articleTag}</a>
+                                   </li>
+                               </#list>
+                           </ul>
+
                         </footer>
                         <@comments commentList=articleComments article=article></@comments>
                         <div id="externalRelevantArticles" class="list"></div>
@@ -105,8 +97,8 @@
                         <div id="randomArticles" class="list"></div>
                     </article>
                 </main>
-                <#include "side.ftl">
             </div>
+             <#include "side.ftl">
         </div>
         <#include "footer.ftl">
         <@comment_script oId=article.oId>
