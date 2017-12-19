@@ -34,9 +34,9 @@
                         <time class="published" datetime="2015-10-20">
                             ${article.articleCreateDate?string("yyyy-MM-dd")}
                         </time>
-                        <a href="#" class="author"><img src="/skins/${skinDirName}/images/logo.jpg" alt="" /></a>
+                        <a href="#" class="author"><img src="/skins/${skinDirName}/images/Fiddlesticks_Square_0.png" alt="" /></a>
                     </header>
-                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/pic04.jpg" alt="" /></a>
+                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/crop.jpg" alt="" /></a>
                 </article>
              </#list>
         </div>
@@ -60,14 +60,14 @@
                             ${article.articleCreateDate?string("yyyy-MM-dd")}
                         </time>
                     </header>
-                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/logo.jpg" alt="" /></a>
+                    <a href="#" class="image"><img src="/skins/${skinDirName}/images/Fiddlesticks_Square_0.png" alt="" /></a>
                 </article>
               </li>
              </#list>
         </ul>
     </section>
     </#if>
-<!-- Footer -->
+    <!-- Footer -->
     <section id="footer">
         <ul class="icons">
             <li><a href="#" class="fa-twitter"><span class="label">Twitter</span></a></li>
@@ -76,6 +76,8 @@
             <li><a href="#" class="fa-rss"><span class="label">RSS</span></a></li>
             <li><a href="#" class="fa-envelope"><span class="label">Email</span></a></li>
         </ul>
-        <p class="copyright">&copy; Untitled. Design: <a href="http://html5up.net">HTML5 UP</a>. Images: <a href="http://unsplash.com">Unsplash</a>.</p>
+        <p class="copyright">${footerContent}</p>
+        <p class="copyright"><a href="${servePath}">${blogTitle}</a>  &nbsp;   • &nbsp;<a href="https://hacpai.com/tag/solo" target="_blank">Solo</a> ${version}</p>
+        <p class="copyright">&copy; ${year}. Design: <a href="http://html5up.net">HTML5 UP</a>. Images: <a href="http://unsplash.com">Unsplash</a>.</p>
     </section>
 </section>

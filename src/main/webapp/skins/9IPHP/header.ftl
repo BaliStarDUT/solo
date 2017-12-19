@@ -15,7 +15,7 @@
                     <a href="${logoutURL}">
                         <i class="icon-logout"></i> ${logoutLabel}
                     </a>
-                    <#else>
+                <#else>
                     <a href="${loginURL}">
                         <i class="icon-login"></i> ${loginLabel}
                     </a>
