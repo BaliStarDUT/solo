@@ -8,9 +8,9 @@
         </@head>
     </head>
     <body>
-        <#include "header.ftl">
-        <div class="wrapper">
-            <div class="main-wrap">
+        <div id="wrapper">
+            <#include "header.ftl">
+            <div id="main">
                 <main class="other">
                     <div class="title">
                         <h2><i class="icon-tags"></i>
@@ -26,8 +26,8 @@
                         </#list>
                     </div>
                 </main>
-                <#include "side.ftl">
             </div>
+            <#include "side.ftl">
         </div>
         <#include "footer.ftl">
             <script type="text/javascript" src="${staticServePath}/skins/${skinDirName}/js/isotope.pkgd.min.js" charset="utf-8"></script>

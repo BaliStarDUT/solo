@@ -8,19 +8,19 @@
         </@head>
     </head>
     <body>
-        <#include "header.ftl">
-        <div class="wrapper">
-            <div class="main-wrap">
-                <main>
-                    <div class="title">
-                        <h2 class="tip"><i class="icon-tags"></i>
-                            &nbsp;${tag.tagTitle}
-                            <small>${tagLabel}</small>
-                    </div>
-                    <#include "article-list.ftl">
-                </main>
-                <#include "side.ftl">
+        <div id="wrapper">
+            <#include "header.ftl">
+            <div id="main">
+               <main>
+                   <div class="title">
+                       <h2 class="tip"><i class="icon-tags"></i>
+                           &nbsp;${tag.tagTitle}
+                           <small>${tagLabel}</small>
+                   </div>
+                   <#include "article-list.ftl">
+               </main>
             </div>
+            <#include "side.ftl">
         </div>
         <#include "footer.ftl">
     </body>

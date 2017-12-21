@@ -8,9 +8,9 @@
         </@head>
     </head>
     <body>
-        <#include "header.ftl">
-        <div class="wrapper">
-            <div class="main-wrap">
+        <div id="wrapper">
+            <#include "header.ftl">
+            <div id="main">
                 <main class="post">
                     <#if 0 != recentComments?size>
                         <ul class="comments" id="comments">
@@ -39,10 +39,11 @@
                         </ul>
                     </#if>
                 </main>
-                <#include "side.ftl">
             </div>
+            <#include "side.ftl">
         </div>
         <#include "footer.ftl">
+
 
         <script>
             var $commentContents = $(".comments .content-reset");

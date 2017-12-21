@@ -8,7 +8,6 @@
         </@head>
     </head>
     <body>
-        <#include "header.ftl">
         <div class="wrapper">
             <div class="main-wrap">
                 <main class="other">

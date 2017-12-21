@@ -3,8 +3,20 @@
     <!-- Intro -->
     <section id="intro">
         <a href="#" class="logo"><img src="${adminUser.userAvatar}" aria-label="${adminUser.userName}"/></a>
+        <div class="fn-right" style="float: right;font-size: small;padding-top: 1em;">
+            <a href="${servePath}/archives.html">
+                ${statistic.statisticPublishedBlogArticleCount}
+                <span class="ft-gray">${articleLabel}</span></a><br/>
+            <a href="${servePath}/dynamic.html">
+                ${statistic.statisticPublishedBlogCommentCount}
+                <span class="ft-gray">${commentLabel}</span></a>
+        </div>
+        <div class="fn-right" style="float: right;font-size: smaller;padding-right: 2em;padding-top: 1em;">
+            ${statistic.statisticBlogViewCount} <span class="ft-gray">${viewLabel}</span><br/>
+            ${onlineVisitorCnt} <span class="ft-gray">${onlineVisitorLabel}</span>
+        </div>
         <header>
-            <h2>${adminUser.userName}</h2>
+            <h2 style="margin-bottom: 0em;">${adminUser.userName}</h2>
         </header>
     </section>
 
