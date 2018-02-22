@@ -10,7 +10,7 @@
     <body>
         <div id="wrapper">
             <#include "header.ftl">
-            <div id="main">
+            <div id="main" style="background-color: #ffffff;">
                 <main class="other">
                     <div class="title">
                          <h2><i class="icon-link"></i>

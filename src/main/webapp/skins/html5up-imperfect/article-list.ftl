@@ -7,7 +7,7 @@
             </a></h2>
         </div>
         <div class="meta">
-            <a href="#" class="author">
+            <a href="${servePath}/archives.html" class="author">
                 <span class="name">${adminUser.userName}</span>
                 <img src="${adminUser.userAvatar}" aria-label="${adminUser.userName}" />
             </a>
@@ -59,7 +59,15 @@
 
 <#if 0 != paginationPageCount>
     <ul class="actions pagination">
-        <li><a href="" class="disabled button big previous">Previous Page</a></li>
-        <li><a href="#" class="button big next">Next Page</a></li>
+        <#if (paginationPageNums?size == paginationCurrentPageNum && 1 < paginationCurrentPageNum)>
+            <li><a href="${servePath}${path}/${paginationCurrentPageNum-1}" class="button big previous">Previous Page--${paginationCurrentPageNum-1}</a></li>
+        </#if>
+        <#if (paginationPageNums?size == 1 && 1 == paginationCurrentPageNum)>
+            <li><a href="${servePath}${path}/${paginationCurrentPageNum+1}" class="disabled button big next">Next Page--${paginationCurrentPageNum+1}</a></li>
+        </#if>
+        <#if (1 > paginationCurrentPageNum && paginationPageNums?size > paginationCurrentPageNum)>
+            <li><a href="${servePath}${path}/${paginationCurrentPageNum-1}" class="button big previous">Previous Page</a></li>
+            <li><a href="${servePath}${path}/${paginationCurrentPageNum+1}" class="button big next">Next Page</a></li>
+        </#if>
     </ul>
 </#if>

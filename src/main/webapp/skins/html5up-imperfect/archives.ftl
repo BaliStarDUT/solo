@@ -8,7 +8,6 @@
         </@head>
     </head>
     <body>
-        <#include "header.ftl">
         <div id="wrapper">
             <#include "header.ftl">
             <div id="main" style="background-color: #ffffff;">

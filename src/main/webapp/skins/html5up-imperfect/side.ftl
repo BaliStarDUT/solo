@@ -11,7 +11,7 @@
                 ${statistic.statisticPublishedBlogCommentCount}
                 <span class="ft-gray">${commentLabel}</span></a>
         </div>
-        <div class="fn-right" style="float: right;font-size: smaller;padding-right: 2em;padding-top: 1em;">
+        <div class="fn-right" style="float: right;font-size: small;padding-right: 2em;padding-top: 1em;">
             ${statistic.statisticBlogViewCount} <span class="ft-gray">${viewLabel}</span><br/>
             ${onlineVisitorCnt} <span class="ft-gray">${onlineVisitorLabel}</span>
         </div>
@@ -27,7 +27,10 @@
               <p>${noticeBoard}</p>
         </#if>
     </section>
-
+    <! --music -->
+    <section>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=28535272&auto=0&height=66"></iframe>
+    </section>
 
     <!-- Mini Posts -->
     <#if 0 != mostCommentArticles?size>
