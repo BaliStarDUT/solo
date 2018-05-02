@@ -12,22 +12,22 @@
   },
   "license": "GPLv3",
   "private": true,
-  "author": "Daniel <dl882509@gmail.com> (http://88250.b3log.org) & Vanessa <lly219@gmail.com> (http://vanessa.b3log.org)",
+  "author": "Daniel <dl882509@gmail.com> (http://88250.b3log.org) & Vanessa <v@b3log.org> (http://vanessa.b3log.org)",
   "maintainers": [
     {
       "name": "Daniel",
-      "email": "dl88250@gmail.com"
+      "email": "d@b3log.org"
     },
     {
       "name": "Vanessa",
-      "email": "lly219@gmail.com"
+      "email": "v@b3log.org"
     }
   ],
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-clean-css": "^2.0.13",
     "gulp-concat": "2.6.0",
     "gulp-uglify": "^2.0.0",
-    "gulp-clean-css": "^2.0.13",
     "marked": "^0.3.6"
   }
 }

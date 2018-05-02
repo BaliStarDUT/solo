@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
  */
 package org.b3log.solo.model.feed.atom;
 
-
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 
 import java.util.*;
-
 
 /**
  * Entry.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.0, Sep 12, 2011
+ * @version 1.1.1.0, Mar 10, 2018
  * @since 0.3.1
  */
 public final class Entry {
@@ -288,7 +287,7 @@ public final class Entry {
 
     /**
      * Gets the categories.
-     * 
+     *
      * @return categories
      */
     public Set<Category> getCatetories() {
@@ -309,7 +308,7 @@ public final class Entry {
         final StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(START_ENTRY_ELEMENT).append(START_TITLE_ELEMENT);
-        stringBuilder.append(title);
+        stringBuilder.append(StringEscapeUtils.escapeXml(title));
         stringBuilder.append(END_TITLE_ELEMENT);
 
         stringBuilder.append(START_AUTHOR_ELEMENT);
@@ -325,19 +324,19 @@ public final class Entry {
             stringBuilder.append(category.toString());
         }
 
-        stringBuilder.append(LINK_ELEMENT.replace(LINK_VARIABLE, link));
+        stringBuilder.append(LINK_ELEMENT.replace(LINK_VARIABLE, StringEscapeUtils.escapeXml(link)));
 
         stringBuilder.append(START_ID_ELEMENT);
-        stringBuilder.append(id);
+        stringBuilder.append(StringEscapeUtils.escapeXml(id));
         stringBuilder.append(END_ID_ELEMENT);
 
         stringBuilder.append(START_UPDATED_ELEMENT);
         stringBuilder.append(DateFormatUtils.format(// using ISO-8601 instead of RFC-3339
-            updated, DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern(), TimeZone.getTimeZone(Feed.TIME_ZONE_ID)));
+                updated, DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.getPattern(), TimeZone.getTimeZone(Feed.TIME_ZONE_ID)));
         stringBuilder.append(END_UPDATED_ELEMENT);
 
         stringBuilder.append(START_SUMMARY_ELEMENT);
-        stringBuilder.append(summary);
+        stringBuilder.append(StringEscapeUtils.escapeXml(summary));
         stringBuilder.append(END_SUMMARY_ELEMENT);
 
         stringBuilder.append(END_ENTRY_ELEMENT);

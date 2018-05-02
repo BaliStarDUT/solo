@@ -2,6 +2,12 @@
 <html>
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta name="copyright" content="B3log">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta http-equiv="Window-target" content="_top">
         <meta name="robots" content="none" />
         <title>${blogTitle} - ${adminConsoleLabel}</title>
         <link type="text/css" rel="stylesheet" href="${staticServePath}/css/default-base${miniPostfix}.css?${staticResourceVersion}" />
@@ -15,10 +21,11 @@
         <div class="tip tip-msg"><span id="tipMsg"></span></div>
         <div id="allPanel">
             <div id="top">
-                <a href="http://b3log.org" target="_blank" class="hover">
+                <a href="${servePath}" target="_blank" class="hover">
                     Solo
                 </a>
-               
+                <span class="icon-unordered-list top__menu none"
+                      onclick="admin.toggleMenu()"></span>
                 <span class="right"> 
                     <a href="${servePath}" title='${indexLabel}'>
                         <div class="avatar" style="background-image: url(${gravatar})"></div>
@@ -120,6 +127,7 @@
                     </li>
                 </ul>
             </div>
+            <div class="tabs__bg" onclick="admin.toggleMenu()"></div>
             <div id="tabsPanel">
                 <div id="tabsPanel_main" class="none"></div>
                 <div id="tabsPanel_article" class="none"></div>
@@ -137,7 +145,7 @@
             </div>
             <div class="clear"></div>
             <div class="footer">
-                Powered by <a href="http://b3log.org" target="_blank">B3log 开源</a> • <a href="https://hacpai.com/tag/solo" target="_blank">Solo</a> ${version}
+                Powered by <a href="https://b3log.org" target="_blank">B3log 开源</a> • <a href="https://hacpai.com/tag/Solo" target="_blank">Solo</a> ${version}
             </div>
         </div>
         <script src="${staticServePath}/js/lib/compress/admin-lib.min.js"></script>

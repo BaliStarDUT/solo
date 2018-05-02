@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ArchiveDateRepositoryImpl extends AbstractRepository implements Arc
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateRepositoryImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ArchiveDateRepositoryImpl.class);
 
     /**
      * Public constructor.
@@ -65,15 +65,28 @@ public class ArchiveDateRepositoryImpl extends AbstractRepository implements Arc
 
         LOGGER.log(Level.TRACE, "Archive date [{0}] parsed to time [{1}]", archiveDate, time);
 
-        final Query query = new Query();
-
-        query.setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).setPageCount(1);
-
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-
+        Query query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).
+                setPageCount(1);
+        JSONObject result = get(query);
+        JSONArray array = result.optJSONArray(Keys.RESULTS);
         if (0 == array.length()) {
-            return null;
+            // Try to fix wired timezone issue: https://github.com/b3log/solo/issues/12435
+            try {
+                time = DateUtils.parseDate(archiveDate, new String[]{"yyyy/MM"}).getTime();
+                time += 60 * 1000 * 60 * 8;
+            } catch (final ParseException e) {
+                return null;
+            }
+
+            LOGGER.log(Level.TRACE, "Fix archive date [{0}] parsed to time [{1}]", archiveDate, time);
+
+            query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).
+                    setPageCount(1);
+            result = get(query);
+            array = result.optJSONArray(Keys.RESULTS);
+            if (0 == array.length()) {
+                return null;
+            }
         }
 
         return array.optJSONObject(0);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,24 @@
  */
 package org.b3log.solo.util;
 
-import java.io.FileInputStream;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.List;
-import java.util.Locale;
-import org.apache.commons.io.IOUtils;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.util.Stopwatchs;
-import org.b3log.latke.util.Strings;
-import org.testng.annotations.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.Locale;
 
 /**
  * {@link org.b3log.solo.util.Thumbnails} test case.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.0, Jul 29, 2013
+ * @version 1.0.0.1, Mar 11, 2018
  * @since 0.6.1
  */
 public final class ThumbnailsTestCase {
 
     /**
      * Test method for {@linkplain Thumbnails#getGravatarURL(java.lang.String, java.lang.String)}.
-     * 
+     *
      * @throws Exception exception
      */
     @Test
@@ -48,6 +42,6 @@ public final class ThumbnailsTestCase {
 
         final String gravatarURL = Thumbnails.getGravatarURL("test@b3log.org", "128");
 
-        System.out.println(gravatarURL);
+        Assert.assertEquals(gravatarURL, Solos.GRAVATAR + "bd7e4673cf7fa4b4777353008c86e093?s=128");
     }
 }

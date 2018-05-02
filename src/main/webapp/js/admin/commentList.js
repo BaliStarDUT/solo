@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.1.5, Feb 23, 2013
+ * @version 1.0.1.6, Apr 5, 2018
  */
 
 /* comment-list 相关操作 */
@@ -35,17 +35,16 @@ admin.commentList = {
         this.tablePagination.buildTable([{
             text: Label.commentContentLabel,
             index: "content",
-            minWidth: 300,
+            minWidth: 174,
             style: "padding-left: 12px;"
         }, {
             text: Label.authorLabel,
             index: "title",
-            width: 230,
             style: "padding-left: 12px;"
         }, {
-            text: Label.createDateLabel,
+            text: Label.dateLabel,
             index: "date",
-            width: 90,
+            width: 60,
             style: "padding-left: 12px;"
         }]);
         this.tablePagination.initPagination();
@@ -82,8 +81,8 @@ admin.commentList = {
                     
                     commentsData[i] = {};
                     
-                    commentsData[i].content = Util.replaceEmString(comments[i].commentContent) + 
-                    "<span class='table-tag'> on &nbsp;&nbsp;</span><a href='" + latkeConfig.servePath + comments[i].commentSharpURL + 
+                    commentsData[i].content = '<div class="content-reset">' + Util.replaceEmString(comments[i].commentContent) +
+                    "</div><span class='table-tag'> on &nbsp;&nbsp;</span><a href='" + latkeConfig.servePath + comments[i].commentSharpURL +
                     "' target='_blank'>" + comments[i].commentTitle +
                     "</a>";
                 

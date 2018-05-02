@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.b3log.solo.repository.ArticleRepository;
 import org.b3log.solo.repository.CommentRepository;
 import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.repository.UserRepository;
+import org.b3log.solo.util.Mails;
 import org.b3log.solo.util.Thumbnails;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +52,7 @@ import java.sql.Statement;
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author <a href="mailto:dongxu.wang@acm.org">Dongxu Wang</a>
- * @version 1.2.0.14, Jul 10, 2017
+ * @version 1.2.0.24, Apr 17, 2018
  * @since 1.2.0
  */
 @Service
@@ -75,17 +76,12 @@ public class UpgradeService {
     /**
      * Old version.
      */
-    private static final String FROM_VER = "2.1.0";
+    private static final String FROM_VER = "2.7.0";
 
     /**
      * New version.
      */
     private static final String TO_VER = SoloServletListener.VERSION;
-
-    /**
-     * Whether the email has been sent.
-     */
-    private static boolean sent = false;
 
     /**
      * Article repository.
@@ -118,6 +114,12 @@ public class UpgradeService {
     private PreferenceQueryService preferenceQueryService;
 
     /**
+     * Statistic query service.
+     */
+    @Inject
+    private StatisticQueryService statisticQueryService;
+
+    /**
      * Language service.
      */
     @Inject
@@ -144,18 +146,18 @@ public class UpgradeService {
                 return;
             }
 
-            LOGGER.log(Level.WARN, "Attempt to skip more than one version to upgrade. Expected: {0}; Actually: {1}", FROM_VER, currentVer);
+            LOGGER.log(Level.ERROR, "Attempt to skip more than one version to upgrade. Expected: {0}, Actually: {1}", FROM_VER, currentVer);
+            notifyUserByEmail();
 
-            if (!sent) {
-                notifyUserByEmail();
-                sent = true;
-            }
+            System.exit(-1);
         } catch (final Exception e) {
             LOGGER.log(Level.ERROR, e.getMessage(), e);
             LOGGER.log(Level.ERROR,
                     "Upgrade failed [" + e.getMessage() + "], please contact the Solo developers or reports this "
                             + "issue directly (<a href='https://github.com/b3log/solo/issues/new'>"
                             + "https://github.com/b3log/solo/issues/new</a>) ");
+
+            System.exit(-1);
         }
     }
 
@@ -167,17 +169,13 @@ public class UpgradeService {
     private void perform() throws Exception {
         LOGGER.log(Level.INFO, "Upgrading from version [{0}] to version [{1}]....", FROM_VER, TO_VER);
 
-        Transaction transaction = null;
+        final Transaction transaction = optionRepository.beginTransaction();
         try {
-            transaction = optionRepository.beginTransaction();
-
             final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
             versionOpt.put(Option.OPTION_VALUE, TO_VER);
             optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
             transaction.commit();
-
-            LOGGER.log(Level.INFO, "Updated preference");
         } catch (final Exception e) {
             if (null != transaction && transaction.isActive()) {
                 transaction.rollback();
@@ -188,6 +186,38 @@ public class UpgradeService {
         }
 
         LOGGER.log(Level.INFO, "Upgraded from version [{0}] to version [{1}] successfully :-)", FROM_VER, TO_VER);
+    }
+
+    /**
+     * Alters database tables.
+     *
+     * @throws Exception exception
+     */
+    private void alterTables() throws Exception {
+        final Connection connection = Connections.getConnection();
+        final Statement statement = connection.createStatement();
+
+        final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
+        statement.executeUpdate("ALTER TABLE `" + tablePrefix + "page` ADD `pageIcon` VARCHAR(255) NOT NULL;");
+        statement.close();
+        connection.commit();
+        connection.close();
+    }
+
+    /**
+     * Drops database tables.
+     *
+     * @throws Exception exception
+     */
+    private void dropTables() throws Exception {
+        final Connection connection = Connections.getConnection();
+        final Statement statement = connection.createStatement();
+
+        final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
+        statement.execute("DROP TABLE `" + tablePrefix + "statistic`;");
+        statement.close();
+        connection.commit();
+        connection.close();
     }
 
     /**
@@ -297,15 +327,19 @@ public class UpgradeService {
      * @throws IOException      IOException
      */
     private void notifyUserByEmail() throws ServiceException, JSONException, IOException {
+        if (!Mails.isConfigured()) {
+            return;
+        }
+
         final String adminEmail = preferenceQueryService.getPreference().getString(Option.ID_C_ADMIN_EMAIL);
         final MailService.Message message = new MailService.Message();
-
         message.setFrom(adminEmail);
         message.addRecipient(adminEmail);
         message.setSubject(langPropsService.get("skipVersionMailSubject"));
         message.setHtmlBody(langPropsService.get("skipVersionMailBody"));
 
         MAIL_SVC.send(message);
+
         LOGGER.info("Send an email to the user who upgrades Solo with a discontinuous version.");
     }
 }

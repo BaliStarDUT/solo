@@ -1,7 +1,8 @@
 <script type="text/javascript">
     var latkeConfig = {
       "staticServePath": "${staticServePath}",
-      "servePath": "${servePath}"
+      "servePath": "${servePath}",
+      "isLoggedIn": "true"
     };
     
     var qiniu = {
@@ -39,6 +40,7 @@
         "tagsLabel": "${tagsLabel}",
         "authorLabel": "${authorLabel}",
         "createDateLabel": "${createDateLabel}",
+        "dateLabel": "${dateLabel}",
         "previousPageLabel": "${previousPageLabel}",
         "pageLabel": "${pageLabel}",
         "nextPagePabel": "${nextPagePabel}",

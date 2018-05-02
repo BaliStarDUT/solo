@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public final class InitCheckFilter implements Filter {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(InitCheckFilter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InitCheckFilter.class);
 
     /**
      * Whether initialization info reported.
@@ -59,10 +59,10 @@ public final class InitCheckFilter implements Filter {
     /**
      * If Solo has not been initialized, so redirects to /init.
      *
-     * @param request the specified request
+     * @param request  the specified request
      * @param response the specified response
-     * @param chain filter chain
-     * @throws IOException io exception
+     * @param chain    filter chain
+     * @throws IOException      io exception
      * @throws ServletException servlet exception
      */
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.1.1, Apr 10, 2017
+ * @version 1.1.2.1, Apr 5, 2018
  * @since 2.0.0
  */
 
@@ -60,7 +60,7 @@ admin.categoryList = {
 
         $("#categoryUpdate").dialog({
             width: 700,
-            height: 260,
+            height: 358,
             "modal": true,
             "hideFooter": true
         });
@@ -90,7 +90,7 @@ admin.categoryList = {
                     height: 160,
                     buttonText: Label.selectLabel,
                     data: tags
-                }).width($("#categoryTags").parent().width() - 68);
+                });
 
                 $("#loadMsg").text("");
             }

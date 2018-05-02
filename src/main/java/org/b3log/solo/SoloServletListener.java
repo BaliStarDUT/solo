@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -60,53 +59,26 @@ import java.util.concurrent.locks.ReentrantLock;
  * Solo Servlet listener.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.9.3.23, Jul 10, 2017
+ * @version 1.9.3.31, Apr 17, 2018
  * @since 0.3.1
  */
 public final class SoloServletListener extends AbstractServletListener {
-
-    /**
-     * Solo version.
-     */
-    public static final String VERSION = "2.2.0";
-
-    /**
-     * JSONO print indent factor.
-     */
-    public static final int JSON_PRINT_INDENT_FACTOR = 4;
-
-    /**
-     * B3log Rhythm address.
-     */
-    public static final String B3LOG_RHYTHM_SERVE_PATH;
-
-    /**
-     * B3log Symphony address.
-     */
-    public static final String B3LOG_SYMPHONY_SERVE_PATH;
-
-    /**
-     * Favicon API.
-     */
-    public static final String FAVICON_API;
 
     /**
      * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(SoloServletListener.class);
 
-    static {
-        final ResourceBundle b3log = ResourceBundle.getBundle("b3log");
-
-        B3LOG_RHYTHM_SERVE_PATH = b3log.getString("rhythm.servePath");
-        B3LOG_SYMPHONY_SERVE_PATH = b3log.getString("symphony.servePath");
-        FAVICON_API = b3log.getString("faviconAPI");
-    }
+    /**
+     * Solo version.
+     */
+    public static final String VERSION = "2.8.0";
 
     /**
      * Bean manager.
      */
     private LatkeBeanManager beanManager;
+
     /**
      * Request lock.
      */
@@ -134,9 +106,7 @@ public final class SoloServletListener extends AbstractServletListener {
         Skins.setDirectoryForTemplateLoading(Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
 
         final OptionRepository optionRepository = beanManager.getReference(OptionRepositoryImpl.class);
-
         final Transaction transaction = optionRepository.beginTransaction();
-
         try {
             loadPreference();
 
@@ -152,7 +122,6 @@ public final class SoloServletListener extends AbstractServletListener {
         registerEventProcessor();
 
         final PluginManager pluginManager = beanManager.getReference(PluginManager.class);
-
         pluginManager.load();
 
         LOGGER.info("Solo is running [" + Latkes.getServePath() + "]");
@@ -220,7 +189,6 @@ public final class SoloServletListener extends AbstractServletListener {
 
     /**
      * Loads preference.
-     * <p>
      * <p>
      * Loads preference from repository, loads skins from skin directory then sets it into preference if the skins
      * changed.
@@ -333,8 +301,7 @@ public final class SoloServletListener extends AbstractServletListener {
                 LOGGER.log(Level.DEBUG, "The request [URI={0}] comes frome mobile device", requestURI);
             }
 
-            Templates.MAIN_CFG.setServletContextForTemplateLoading(SoloServletListener.getServletContext(),
-                    "/skins/" + desiredView);
+            Templates.MAIN_CFG.setServletContextForTemplateLoading(SoloServletListener.getServletContext(), "/skins/" + desiredView);
             httpServletRequest.setAttribute(Keys.TEMAPLTE_DIR_NAME, desiredView);
         } catch (final Exception e) {
             LOGGER.log(Level.ERROR, "Resolves skin failed", e);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,14 @@ import org.b3log.solo.repository.*;
 import org.b3log.solo.service.*;
 import org.b3log.solo.util.Emotions;
 import org.b3log.solo.util.Markdowns;
+import org.b3log.solo.util.Solos;
 import org.b3log.solo.util.Thumbnails;
 import org.b3log.solo.util.comparator.Comparators;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,7 +63,7 @@ import static org.b3log.solo.model.Article.ARTICLE_CONTENT;
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
- * @version 1.6.14.13, Jun 16, 2017
+ * @version 1.6.16.1, Mar 11, 2018
  * @since 0.3.1
  */
 @Service
@@ -192,8 +195,7 @@ public class Filler {
      * @param preference     the specified preference
      * @throws ServiceException service exception
      */
-    public void fillIndexArticles(final HttpServletRequest request,
-                                  final Map<String, Object> dataModel, final int currentPageNum, final JSONObject preference)
+    public void fillIndexArticles(final HttpServletRequest request, final Map<String, Object> dataModel, final int currentPageNum, final JSONObject preference)
             throws ServiceException {
         Stopwatchs.start("Fill Index Articles");
 
@@ -202,7 +204,7 @@ public class Filler {
             final int windowSize = preference.getInt(Option.ID_C_ARTICLE_LIST_PAGINATION_WINDOW_SIZE);
 
             final JSONObject statistic = statisticQueryService.getStatistic();
-            final int publishedArticleCnt = statistic.getInt(Statistic.STATISTIC_PUBLISHED_ARTICLE_COUNT);
+            final int publishedArticleCnt = statistic.getInt(Option.ID_C_STATISTIC_PUBLISHED_ARTICLE_COUNT);
             final int pageCount = (int) Math.ceil((double) publishedArticleCnt / (double) pageSize);
 
             final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).setPageCount(pageCount).setFilter(
@@ -418,7 +420,7 @@ public class Filler {
                     if (!dateString.equals(lastDateString)) {
                         archiveDates2.add(archiveDate);
                     } else {
-                        LOGGER.log(Level.WARN, "Found a duplicated archive date [{0}]", dateString);
+                        LOGGER.log(Level.DEBUG, "Found a duplicated archive date [{0}]", dateString);
                     }
                 }
             }
@@ -519,7 +521,6 @@ public class Filler {
             final List<JSONObject> recentArticles = articleRepository.getRecentArticles(recentArticleDisplayCnt);
 
             dataModel.put(Common.RECENT_ARTICLES, recentArticles);
-
         } catch (final JSONException e) {
             LOGGER.log(Level.ERROR, "Fills recent articles failed", e);
             throw new ServiceException(e);
@@ -550,6 +551,7 @@ public class Filler {
                 String commentContent = comment.optString(Comment.COMMENT_CONTENT);
                 commentContent = Emotions.convert(commentContent);
                 commentContent = Markdowns.toHTML(commentContent);
+                commentContent = Jsoup.clean(commentContent, Whitelist.relaxed());
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
 
                 comment.put(Comment.COMMENT_NAME, comment.getString(Comment.COMMENT_NAME));
@@ -591,7 +593,7 @@ public class Filler {
             final String blogTitle = preference.getString(Option.ID_C_BLOG_TITLE);
 
             dataModel.put(Option.ID_C_BLOG_TITLE, blogTitle);
-            dataModel.put("blogHost", Latkes.getServerHost() + ":" + Latkes.getServerPort());
+            dataModel.put("blogHost", Latkes.getServePath());
 
             dataModel.put(Common.VERSION, SoloServletListener.VERSION);
             dataModel.put(Common.STATIC_RESOURCE_VERSION, Latkes.getStaticResourceVersion());
@@ -689,7 +691,7 @@ public class Filler {
 
             dataModel.put(Common.YEAR, String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
             dataModel.put(Common.IS_LOGGED_IN, null != userQueryService.getCurrentUser(request));
-            dataModel.put(Common.FAVICON_API, SoloServletListener.FAVICON_API);
+            dataModel.put(Common.FAVICON_API, Solos.FAVICON_API);
 
             final String noticeBoard = preference.getString(Option.ID_C_NOTICE_BOARD);
 
@@ -893,7 +895,7 @@ public class Filler {
             LOGGER.debug("Filling statistic....");
             final JSONObject statistic = statisticQueryService.getStatistic();
 
-            dataModel.put(Statistic.STATISTIC, statistic);
+            dataModel.put(Option.CATEGORY_C_STATISTIC, statistic);
         } catch (final ServiceException e) {
             LOGGER.log(Level.ERROR, "Fills statistic failed", e);
             throw new ServiceException(e);
@@ -903,9 +905,7 @@ public class Filler {
     }
 
     /**
-     * Sets some extra properties into the specified article with the specified author and preference, performs content
-     * and abstract editor processing.
-     * <p>
+     * Sets some extra properties into the specified article with the specified author and preference, performs content and abstract editor processing.
      * <p>
      * Article ext properties:
      * <pre>
@@ -966,8 +966,7 @@ public class Filler {
     }
 
     /**
-     * Sets some extra properties into the specified article with the specified preference, performs content and
-     * abstract editor processing.
+     * Sets some extra properties into the specified article with the specified preference, performs content and abstract editor processing.
      * <p>
      * Article ext properties:
      * <pre>
@@ -978,7 +977,8 @@ public class Filler {
      *     "authorThumbnailURL": "",
      *     "hasUpdated": boolean
      * }
-     * </pre> </p>
+     * </pre>
+     * </p>
      *
      * @param request    the specified HTTP servlet request
      * @param article    the specified article
@@ -1039,7 +1039,8 @@ public class Filler {
      *     "authorId": "",
      *     "hasUpdated": boolean
      * }
-     * </pre> </p>
+     * </pre>
+     * </p>
      *
      * @param request    the specified HTTP servlet request
      * @param articles   the specified articles
@@ -1070,7 +1071,8 @@ public class Filler {
      *     "authorId": "",
      *     "hasUpdated": boolean
      * }
-     * </pre> </p>
+     * </pre>
+     * </p>
      *
      * @param request    the specified HTTP servlet request
      * @param articles   the specified articles
@@ -1088,13 +1090,11 @@ public class Filler {
 
     /**
      * Processes the abstract of the specified article with the specified preference.
-     * <p>
      * <ul>
      * <li>If the abstract is {@code null}, sets it with ""</li>
      * <li>If user configured preference "titleOnly", sets the abstract with ""</li>
      * <li>If user configured preference "titleAndContent", sets the abstract with the content of the article</li>
      * </ul>
-     * </p>
      *
      * @param preference the specified preference
      * @param article    the specified article

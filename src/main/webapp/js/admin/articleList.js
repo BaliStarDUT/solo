@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.2.5, Aug 23, 2016
+ * @version 1.0.2.6, Apr 5, 2018
  */
 
 /* article-list 相关操作 */
@@ -50,7 +50,7 @@ admin.articleList = {
             index: "articleViewCount",
             style: "padding-left: 12px;"
         }, {
-            text: Label.createDateLabel,
+            text: Label.dateLabel,
             index: "date",
             width: 90,
             style: "padding-left: 12px;"

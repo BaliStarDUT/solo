@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.service.PreferenceQueryService;
+import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
@@ -48,7 +49,7 @@ import java.util.Date;
  * </p>
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.4, Jul 6, 2017
+ * @version 1.0.1.2, Mar 11, 2018
  * @since 0.6.0
  */
 public final class ArticleUpdater extends AbstractEventListener<JSONObject> {
@@ -65,7 +66,7 @@ public final class ArticleUpdater extends AbstractEventListener<JSONObject> {
 
     static {
         try {
-            UPDATE_ARTICLE_URL = new URL(SoloServletListener.B3LOG_RHYTHM_SERVE_PATH + "/article");
+            UPDATE_ARTICLE_URL = new URL(Solos.B3LOG_RHYTHM_SERVE_PATH + "/article");
         } catch (final MalformedURLException e) {
             LOGGER.log(Level.ERROR, "Creates remote service address[rhythm update article] error!");
             throw new IllegalStateException(e);
@@ -130,9 +131,9 @@ public final class ArticleUpdater extends AbstractEventListener<JSONObject> {
 
             requestJSONObject.put(Article.ARTICLE, article);
             requestJSONObject.put(Common.BLOG_VERSION, SoloServletListener.VERSION);
-            requestJSONObject.put(Common.BLOG, "B3log Solo");
+            requestJSONObject.put(Common.BLOG, "Solo");
             requestJSONObject.put(Option.ID_C_BLOG_TITLE, preference.getString(Option.ID_C_BLOG_TITLE));
-            requestJSONObject.put("blogHost", Latkes.getServerHost() + ":" + Latkes.getServerPort());
+            requestJSONObject.put("blogHost", Latkes.getServePath());
             requestJSONObject.put("userB3Key", preference.optString(Option.ID_C_KEY_OF_SOLO));
             requestJSONObject.put("clientAdminEmail", preference.optString(Option.ID_C_ADMIN_EMAIL));
             requestJSONObject.put("clientRuntimeEnv", "LOCAL");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,13 @@ import java.net.URI;
 
 /**
  * Solo with embedded Jetty, <a href="https://github.com/b3log/solo/issues/12037">standalone mode</a>.
- * <p>
  * <ul>
- * <li>Windows: java -cp WEB-INF/lib/*;WEB-INF/classes org.b3log.solo.Starter</li>
- * <li>Unix-like: java -cp WEB-INF/lib/*:WEB-INF/classes org.b3log.solo.Starter</li>
+ * <li>Windows: java -cp "WEB-INF/lib/*;WEB-INF/classes" org.b3log.solo.Starter</li>
+ * <li>Unix-like: java -cp "WEB-INF/lib/*:WEB-INF/classes" org.b3log.solo.Starter</li>
  * </ul>
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.9, Jul 9, 2017
+ * @version 1.1.0.12, Apr 5, 2018
  * @since 1.2.0
  */
 public final class Starter {
@@ -100,14 +99,15 @@ public final class Starter {
         options.addOption(runtimeModeOpt);
 
         options.addOption("h", "help", false, "print help for the command");
+        options.addOption("no", "not_open", false, "not auto open in the browser");
 
         final HelpFormatter helpFormatter = new HelpFormatter();
         final CommandLineParser commandLineParser = new DefaultParser();
         CommandLine commandLine;
 
         final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
-        final String cmdSyntax = isWindows ? "java -cp WEB-INF/lib/*;WEB-INF/classes org.b3log.solo.Starter"
-                : "java -cp WEB-INF/lib/*:WEB-INF/classes org.b3log.solo.Starter";
+        final String cmdSyntax = isWindows ? "java -cp \"WEB-INF/lib/*;WEB-INF/classes\" org.b3log.solo.Starter"
+                : "java -cp \"WEB-INF/lib/*:WEB-INF/classes\" org.b3log.solo.Starter";
         final String header = "\nSolo is a blogging system written in Java, feel free to create your or your team own blog.\nSolo 是一个用 Java 实现的博客系统，为你或你的团队创建个博客吧。\n\n";
         final String footer = "\nReport bugs or request features please visit our project website: https://github.com/b3log/solo\n\n";
         try {
@@ -145,10 +145,8 @@ public final class Starter {
         if (null != runtimeMode) {
             Latkes.setRuntimeMode(Latkes.RuntimeMode.valueOf(runtimeMode));
         }
-        Latkes.setScanPath("org.b3log.solo"); // For Latke IoC
 
-        logger.info("Standalone mode, see [https://github.com/b3log/solo/issues/12037] for more details.");
-        Latkes.initRuntimeEnv();
+        logger.info("Standalone mode, see https://github.com/b3log/solo/issues/12037 for more details.");
 
         String webappDirLocation = "src/main/webapp/"; // POM structure in dev env
         final File file = new File(webappDirLocation);
@@ -180,10 +178,22 @@ public final class Starter {
         final String contextPath = Latkes.getContextPath();
 
         try {
-            Desktop.getDesktop().browse(new URI(serverScheme + "://" + serverHost + ":" + serverPort + contextPath));
+            if (!commandLine.hasOption("no")) {
+                Desktop.getDesktop().browse(new URI(serverScheme + "://" + serverHost + ":" + serverPort + contextPath));
+            }
         } catch (final Throwable e) {
             // Ignored
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                server.stop();
+            } catch (final Exception e) {
+                logger.log(Level.ERROR, "Server stop failed", e);
+
+                System.exit(-1);
+            }
+        }));
 
         server.join();
     }

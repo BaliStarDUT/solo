@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package org.b3log.solo.event.symphony;
-
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -35,17 +34,17 @@ import org.b3log.solo.event.rhythm.ArticleSender;
 import org.b3log.solo.model.Comment;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.service.PreferenceQueryService;
+import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
 /**
  * This listener is responsible for sending comment to B3log Symphony.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.5, Jul 6, 2017
+ * @version 1.0.1.1, Mar 11, 2018
  * @since 0.5.5
  */
 public final class CommentSender extends AbstractEventListener<JSONObject> {
@@ -67,7 +66,7 @@ public final class CommentSender extends AbstractEventListener<JSONObject> {
 
     static {
         try {
-            ADD_COMMENT_URL = new URL(SoloServletListener.B3LOG_SYMPHONY_SERVE_PATH + "/solo/comment");
+            ADD_COMMENT_URL = new URL(Solos.B3LOG_SYMPHONY_SERVE_PATH + "/solo/comment");
         } catch (final MalformedURLException e) {
             LOGGER.log(Level.ERROR, "Creates remote service address[symphony add comment] error!");
             throw new IllegalStateException(e);
@@ -113,8 +112,8 @@ public final class CommentSender extends AbstractEventListener<JSONObject> {
             requestJSONObject.put(Comment.COMMENT, comment);
             requestJSONObject.put("clientVersion", SoloServletListener.VERSION);
             requestJSONObject.put("clientRuntimeEnv", "LOCAL");
-            requestJSONObject.put("clientName", "B3log Solo");
-            requestJSONObject.put("clientHost", Latkes.getServerHost() + ":" + Latkes.getServerPort());
+            requestJSONObject.put("clientName", "Solo");
+            requestJSONObject.put("clientHost", Latkes.getServePath());
             requestJSONObject.put("clientAdminEmail", preference.optString(Option.ID_C_ADMIN_EMAIL));
             requestJSONObject.put("userB3Key", preference.optString(Option.ID_C_KEY_OF_SOLO));
 

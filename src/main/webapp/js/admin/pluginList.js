@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.1.4, May 28, 2013
+ * @version 1.0.1.5, Apr 5, 2018
  */
 
 /* plugin-list 相关操作 */
@@ -42,7 +42,7 @@ admin.pluginList = {
                 style: "padding-left: 12px;",
                 text: Label.statusLabel,
                 index: "status",
-                minWidth: 180
+                minWidth: 80
             }, {
                 style: "padding-left: 12px;",
                 text: Label.authorLabel,

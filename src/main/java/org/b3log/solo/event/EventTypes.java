@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package org.b3log.solo.event;
-
 
 /**
  * Event types.
@@ -39,7 +38,7 @@ public final class EventTypes {
      * Indicates a remove article event.
      */
     public static final String REMOVE_ARTICLE = "Remove Article";
-    
+
     /**
      * Indicates a before render article event.
      */
@@ -68,5 +67,6 @@ public final class EventTypes {
     /**
      * Private default constructor.
      */
-    private EventTypes() {}
+    private EventTypes() {
+    }
 }

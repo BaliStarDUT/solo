@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, b3log.org & hacpai.com
+ * Copyright (c) 2010-2018, b3log.org & hacpai.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.b3log.solo.model.Option;
 import org.b3log.solo.repository.CommentRepository;
 import org.b3log.solo.repository.impl.CommentRepositoryImpl;
 import org.b3log.solo.service.PreferenceQueryService;
+import org.b3log.solo.util.Mails;
 import org.json.JSONObject;
 
 /**
@@ -42,7 +43,7 @@ import org.json.JSONObject;
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author <a href="http://www.wanglay.com">Lei Wang</a>
- * @version 1.2.1.7, May 6, 2016
+ * @version 1.2.2.9, Apr 15, 2018
  * @since 0.3.1
  */
 public final class ArticleCommentReplyNotifier extends AbstractEventListener<JSONObject> {
@@ -50,7 +51,7 @@ public final class ArticleCommentReplyNotifier extends AbstractEventListener<JSO
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleCommentReplyNotifier.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ArticleCommentReplyNotifier.class);
 
     /**
      * Mail service.
@@ -63,11 +64,9 @@ public final class ArticleCommentReplyNotifier extends AbstractEventListener<JSO
         final JSONObject comment = eventData.optJSONObject(Comment.COMMENT);
         final JSONObject article = eventData.optJSONObject(Article.ARTICLE);
 
-        LOGGER.log(Level.DEBUG,
-                "Processing an event[type={0}, data={1}] in listener[className={2}]",
+        LOGGER.log(Level.DEBUG, "Processing an event[type={0}, data={1}] in listener[className={2}]",
                 event.getType(), eventData, ArticleCommentReplyNotifier.class.getName());
         final String originalCommentId = comment.optString(Comment.COMMENT_ORIGINAL_COMMENT_ID);
-
         if (Strings.isEmptyOrNull(originalCommentId)) {
             LOGGER.log(Level.DEBUG, "This comment[id={0}] is not a reply", comment.optString(Keys.OBJECT_ID));
 
@@ -80,22 +79,28 @@ public final class ArticleCommentReplyNotifier extends AbstractEventListener<JSO
             return;
         }
 
+        if (!Mails.isConfigured()) {
+            return;
+        }
+
         final LatkeBeanManager beanManager = Lifecycle.getBeanManager();
         final PreferenceQueryService preferenceQueryService = beanManager.getReference(PreferenceQueryService.class);
-
         final CommentRepository commentRepository = beanManager.getReference(CommentRepositoryImpl.class);
 
         try {
             final String commentEmail = comment.getString(Comment.COMMENT_EMAIL);
             final JSONObject originalComment = commentRepository.get(originalCommentId);
-            final String originalCommentEmail = originalComment.getString(Comment.COMMENT_EMAIL);
 
+            final String originalCommentEmail = originalComment.getString(Comment.COMMENT_EMAIL);
             if (originalCommentEmail.equalsIgnoreCase(commentEmail)) {
                 return;
             }
 
-            final JSONObject preference = preferenceQueryService.getPreference();
+            if (!Strings.isEmail(originalCommentEmail)) {
+                return;
+            }
 
+            final JSONObject preference = preferenceQueryService.getPreference();
             if (null == preference) {
                 throw new EventException("Not found preference");
             }
@@ -145,10 +150,11 @@ public final class ArticleCommentReplyNotifier extends AbstractEventListener<JSO
             message.setHtmlBody(mailBody);
             LOGGER.log(Level.DEBUG, "Sending a mail[mailSubject={0}, mailBody=[{1}] to [{2}]",
                     mailSubject, mailBody, originalCommentEmail);
-            mailService.send(message);
 
+            mailService.send(message);
         } catch (final Exception e) {
             LOGGER.log(Level.ERROR, e.getMessage(), e);
+
             throw new EventException("Reply notifier error!");
         }
     }
