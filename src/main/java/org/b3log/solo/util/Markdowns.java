@@ -15,10 +15,12 @@
  */
 package org.b3log.solo.util;
 
+import com.vladsch.flexmark.Extension;
+import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.profiles.pegdown.Extensions;
-import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
+import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.options.DataHolder;
+import com.vladsch.flexmark.util.options.MutableDataSet;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.ioc.LatkeBeanManagerImpl;
@@ -39,6 +41,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.*;
 
@@ -75,9 +78,8 @@ public final class Markdowns {
      * Built-in MD engine options.
      */
 
-    private static final DataHolder OPTIONS = PegdownOptionsAdapter.flexmarkOptions(
-            Extensions.ALL_OPTIONALS | Extensions.ALL_WITH_OPTIONALS
-    );
+    private static final DataHolder OPTIONS = new MutableDataSet().setFrom(ParserEmulationProfile.MARKDOWN)
+            .set(com.vladsch.flexmark.parser.Parser.EXTENSIONS, Arrays.asList(new Extension[] { TablesExtension.create()}));
 
     /**
      * Built-in MD engine parser.
